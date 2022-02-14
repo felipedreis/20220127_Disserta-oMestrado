@@ -1,0 +1,206 @@
+\chapter{Avaliação do efeito da diversidade na qualidade das soluções produzidas}
+\label{chap:exp_diversidade}
+%\epigraph{Rir, antes da hora, engasga}{Grande Sertão Veredas}
+
+% - O que esse experimento avaliou
+Uma vez avaliada a capacidade de escalar horizontalmente, bem como observado o efeito da melhoria do desempenho da arquitetura quando munida de um sistema de memória, o atual capítulo se ocupará de descrever os experimentos realizados para avaliar o efeito da diversidade de agentes na qualidade das soluções produzidas pela arquitetura.
+
+Para melhor compreender o procedimento experimental e o método de avaliação, o presente capítulo se divide em cinco secções. A primeira seção trata dos experimentos de \textit{baseline}, que servirão de base de comparação para os experimentos seguintes. Esta etapa do procedimento experimental avaliou o resultado de cada uma das meta-heurísticas presentes na arquitetura D-Optimas na presença de um agente gerador de soluções. Esta configuração é a mais simples que pode ser executada, uma vez que o agente gerador é necessário para inicializar os agentes populacionais e de busca local. A \autoref{sec:popBuscaLocal} trata da hibridização de um algoritmo populacional e uma busca local. Como a partir deste momento há dois agentes que exploram e estendem o espaço de busca, faz sentindo também avaliar o impacto do aumento do número mínimo de regiões na qualidade das soluções finais encontradas pela arquitetura, resultado que é apresentado na \autoref{sec:aumentandoRegioes}. 
+
+Uma vez apreciado o comportamento de um agente populacional acompanhado de uma busca local, a \autoref{sec:aumentandoAgentes} avalia o efeito do aumento do número de agentes resultado no resultado final produzido pela arquitetura D-Optimas. 
+
+Por fim, a \autoref{sec:diversidade} avalia o efeito da composição de várias heurísticas populacionais, juntamente com a busca local, comparando os resultados obtidos nesta etapa com todas as configurações anteriores. A síntese do resultado e as considerações finais deste capítulo estão dispostas na \autoref{sec:sinteseDiversidade}.
+
+Esta bateria de experimentos foi executada em máquinas virtuais no \textit{Google Cloud Platform}\footnote{https://cloud.google.com/compute/docs/machine-types}, em instâncias do tipo e2-standard-4 com 4 vCPUs e 8Gb de memória RAM. Nestes experimentos a arquitetura executou como um único nó, conectada a dois nós de banco de dados \textit{Cassandra}. Os experimentos foram provisionados com o auxílio da ferramenta \textit{Ansible}, e executaram isoladamente em um ambiente \textit{Docker}. Para todas as configurações dos experimentos foram coletadas 20 amostras. Essas amostras incluem o valor de todas as soluções encontradas pela arquitetura, bem como dados do comportamento das regiões (divisões e fusões) e dos agentes (uso de memória). O critério de parada do experimento foi atingir o limite de tempo discreto da arquitetura de 1000 unidades. 
+
+Todos os experimentos foram executados sobre a função EggHolder, que está descrita na equação abaixo. 
+
+\begin{equation*}
+  f(x, y) = -(y + 47) * \sin{\sqrt{\big| y + \frac{x}{2.0} + 47 \big| }} - x * \sin{\sqrt{\big|x - (y + 47)\big|}} 
+\end{equation*}
+
+A principio esse problema parece interessante para a arquitetura, pois possui um grande número de mínimos locais. 
+
+\section{Experimentos de \textit{baseline}}
+\label{sec:baseline}
+O objetivo deste experimento é servir como base de comparação para os experimentos seguintes, uma vez que é difícil comparar a arquitetura D-Optimas com qualquer algoritmo \textit{standalone}, uma vez que estamos a falar de um sistema multi-agentes.
+
+Deste modo buscou executar a configuração mais simples possível para a arquitetura D-Optimas. Essa configuração inclui um agente gerador de soluções iniciais e um outro agente explorador do espaço de busca. Para o agente gerador de soluções iniciais foi escolhido o algoritmo GRASP. Ele foi executado juntamente com Um agente do tipo ILS, GA, DE e PSO. 
+A configuração dos agentes está disposta na \autoref{tab:configExpBaseline}.
+
+\begin{table}[ht!]
+    \centering
+    \caption{Parâmetros das metaheurísticas utilizadas para o experimento de \textit{baseline}}
+    \begin{tabular}{llc}
+        \toprule
+         \textbf{Metaheurística} & \textbf{Parâmetro} & \textbf{Valor} \\
+         \midrule
+         \multirow{2}{*}{GRASP} & iterações                 & 100\\
+                                & iterações busca local     & 10\\
+                                & alpha                     & 0.5\\
+         \hline
+         \multirow{4}{*}{DE}    & iterações                 & 50\\
+                                & tamanho da população      & 30\\
+                                & taxa de mutação           & 0.2\\
+                                & taxa de cruzamento        & 0.5\\
+        \hline
+        \multirow{2}{*}{ILS}    & iterações                 & 500\\
+                                & nível de distúrbio        & 7\\
+        \hline
+        \multirow{5}{*}{PSO}    & iterações                 & 500\\
+                                & tamanho da população      & 30\\
+                                & C1                        & 0.15\\
+                                & C2                        & 0.15\\
+                                & fator de inércia          & 1\\
+        \bottomrule
+    \end{tabular}
+    \fonte{O próprio autor}
+    \label{tab:configExpBaseline}
+\end{table}
+
+A \autoref{fig:baseline} exibe as 20 últimas soluções de cada uma das configurações. Como não foi possível verifficar a premissa de normalidade dos resíduos, foi utilizado o método de Kruskal-Wallis, que indicou diferença entre as amostras com p-valor de $0$.
+
+\begin{figure}
+\centering
+\includesvg[scale=0.8]{./imagens/baseline_boxplot.svg}
+\caption{Boxplot de 20 valores da  função objetivo encontrada no final da simulação para cada umas das configurações}
+\fonte{O próprio autor}
+\label{fig:baseline}
+\end{figure}
+
+Não há diferença entre as instâncias GRASP\_GA e GRASP\_ILS (p-valor 0.828). Entretanto as configurações GRASP\_DE e GRASP\_PSO diferem das demais. Em especial a configuração GRASP\_DE obteve o melhor resultado para este problema, ao encontrar o valor ótimo. 
+
+\section{Avaliando o efeito da hibridização de um agente populacional e uma busca local}
+\label{sec:popBuscaLocal}
+
+Após avaliar o resultado da configuração mais simples possível para a arquitetura D-Optimas, o presente experimento avaliará a combinação de duas heurísticas fundamentalmente diferentes, a saber, uma heurística de busca local e uma heurística populacional. As configurações dos agentes utilizadas neste experimento foram as mesmas dispostas na \autoref{tab:configExpBaseline}. O tamanho da amostra também se manteve, bem como a duração do experimento. As combinações avalidas neste experimento foram a hibridização do ILS com os algoritmos DE, GA  e PSO.
+
+A \autoref{fig:baselineILS_ILS_GA} compara o desempenho do baseline do algoritmo ILS com a sua hibridização com o GA. Como há sobreposição de caixas, não é possível dizer visualmente que há diferença entre as amostras. As amostras foram submetidas à um teste de hipótese não paramétrico uma vez que não atendem às premissas da ANOVA. O teste de Kruskal-Wallis obteve um p-valor de $0.401720$. Como este valor é maior do que o nível de significância de $5\%$, não é possível afirmar que há diferença entre utilizar somente um ILS, ou utilizá-lo em conjunto com o GA. 
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/baseline_ILS_ILS_GA.svg}
+    \caption{Comparação de 20 valores de função objetivo do \textit{baseline} ILS com a combinação do ILS e GA}
+    \label{fig:baselineILS_ILS_GA}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/baseline_GA_ILS_GA.svg}
+    \caption{Comparação de 20 valores de função objetivo do baseline GA com a combinação do ILS e GA}
+    \label{fig:baselineGA_ILS_GA}
+\end{figure}
+
+A \autoref{fig:baselineGA_ILS_GA} compara o desempenho do \textit{baseline} do algoritmo GA com a sua hibridização com o GA. Novamente, não é possível dizer visualmente que há diferença entre as amostras. Como elas também não atendem à premissa de normalidade da ANOVA, sobre este resultado foi utilizado um teste não paramétrico. O teste de Kruskal-Wallis obteve um p-valor de $0.233966$ que é maior que o nível de significância de $5\%$. Este resultado portanto não permite afirmar que há diferença estatística relevante entre utilizar somente o GA ou combiná-lo com a metaheurística ILS.
+
+Os resultados da hibridização entre o ILS e o DE estão confrontados na  \autoref{fig:baselineDE_ILS_DE}. Não atendidas a premissa de normalidade da ANOVA, este resultado foi submetido a um teste não paramétrico. O teste de Kruskal-Wallis obteve um p-valor de $0.018293$ que é menor que o nível de significância de $5\%$. Neste caso há diferença estatística relevante entre o \textit{baseline} que obteve um resultado médio de $-959.50454 \pm 0.608754$, contra a instância GRASP\_ILS\_DE cujo resultado médio foi de $-959.640664 \pm 0.0000002$. 
+
+Finalmente, não é possível afirmar que há diferença significativa entre o PSO e combiná-lo com uma busca local. Este resultado está exibido na \autoref{fig:baselinePSO_ILS_PSO}. Não foi possível aplicar a ANOVA neste resultado, pois ele não atende a premissa de normalidade. O teste de Kruskal-Wallis obteve um p-valor de $0.349729$. 
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/baselineDE_ILS_DE.svg}
+    \caption{Comparação de 20 valores de função objetivo do \textit{baseline} DE com a combinação do ILS e DE}
+    \label{fig:baselineDE_ILS_DE}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/baselinePSO_ILS_PSO.svg}
+    \caption{Comparação de 20 valores de função objetivo do \textit{baseline} PSO com a combinação do ILS e PSO}
+    \label{fig:baselinePSO_ILS_PSO}
+\end{figure}
+
+\section{Avaliando o efeito do aumento do número de regiões na presença de um agente populacional e uma busca local}
+\label{sec:aumentandoRegioes}
+Até o momento, foram avaliadas as configurações mais básicas da arquitetura, com um agente gerador de soluções iniciais, e um agente explorador do espaço de busca, bem como a hibridização de um algoritmo populacional e um algoritmo de busca local. Foi possível observar que para uma das combinações a hibridização fez sentido, e produziu melhoria, mas esse resultado não foi observado em todos os casos. Explorada a possibilidade de colaboração entre os agentes, introduzir mais regiões no sistema abre a possibilidade de segmentação do espaço de busca. Isso possibilita aos agentes formar uma memória das últimas regiões exploradas e da qualidade das soluções produzidas por cada uma delas. 
+
+Deste modo neste experimento variou-se o fator número de regiões em 4 níveis: o primeiro, com uma única região, o segundo com 5 regiões, que também corresponde ao limite da memória do agente, e os próximos níveis com 10 e 20 regiões. Este experimento foi repetido para as três hibridizações estudadas até agora. Os resultados são exibidos nas Figuras \ref{fig:A0boxplot}, \ref{fig:A1boxplot} e \ref{fig:A2boxplot}. 
+
+Há que se fazer uma ressalva a este experimento, no que diz respeito à duração da instância correspondente ao fator de 20 regiões. Para este caso, foi possível observar que a duração de 1000 unidades de tempo discreto não eram suficientes para explorar além do limite de 10 regiões. Deste modo, para o caso de 20 regiões nos experimentos GRASP\_ILS\_DE,  GRASP\_ILS\_GA e GRASP\_ILS\_PSO, o experimento foi executado com a duração de 2000 unidades de tempo. 
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/A0_boxplot.svg}
+    \caption{Comparação de 20 valores de função objetivo do experimento com os agentes GRASP, ILS e GA para 1, 5, 10 e 20 regiões}
+    \label{fig:A0boxplot}
+\end{figure}
+
+Não sendo possível verificar a premissa da ANOVA de normalidade, foi aplicado o teste não-paramétrico de Kruskal-Wallis. O teste não acusou nenhuma diferença em nenhuma das três instâncias, obtendo os p-valores de $0.599747$, $0.175647$ e $0.111431$ par os experimentos GRASP\_ILS\_DE, GRASP\_ILS\_GA e GRASP\_ILS\_PSO respectivamente. É importante ressaltar que mesmo aumentando o tempo de duração do experimento com 20 regiões, o mero aumento do número de regiões não produz qualquer efeito no resultado final global. 
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/A1_boxplot.svg}
+    \caption{Comparação de 20 valores de função objetivo do experimento GRASP, ILS e DE para 1, 5, 10 e 20 regiões}
+    \label{fig:A1boxplot}
+    \fonte{O próprio autor}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/A2_boxplot.svg}
+    \caption{Comparação de 20 valores de função objetivo do experimento GRASP, ILS e PSO para 1, 5, 10 e 20 regiões}
+    \label{fig:A2boxplot}
+    \fonte{O próprio autor}
+\end{figure}
+
+Diante disto, o fator seguinte que deve ser avaliado é a diversidade de agentes no sistema. Entretanto, antes de avaliar a hibridização de diferentes agentes populacionais, há que se observar que ao aumentar o número de agentes na simulação, isso acarreta no aumento do número de avaliações de função. Avaliar mais vezes a função objetivo pode melhorar o resultado, e é um fator que deve ser analisado. Deste modo o experimento seguinte avalia o aumento do número de agentes do mesmo tipo, com os mesmos parâmetros, bem como com parâmetros diferentes. 
+
+\section{Efeito do aumento do número dos agentes e variações em suas configurações}
+\label{sec:aumentandoAgentes}
+
+Esta seção apresenta os resultados para duas variações do conceito de diversidade sobre o experimento GRASP\_ILS\_GA. A primeira amostra corresponde ao simples aumento da quantidade de agentes, mas mantendo as suas configurações iguais.  A segunda bateria de experimento inclui modificações nos parâmetros dos agentes populacionais e de busca local.   
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/A0.1_boxplot.svg}
+    \caption{Comparação de 20 valores de função objetivo do experimento com os agentes GRASP, 2 agentes ILS e 4 agentes GA, configurados com os mesmos parâmetros, limitados a 1, 5, 10 e 20 regiões}
+    \label{fig:A01boxplot}
+    \fonte{O próprio autor}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/A0.2_boxplot.svg}
+    \caption{Comparação de 20 valores de função objetivo do experimento com os agentes GRASP, 2 agentes ILS e 4 agentes GA, variando o parâmetro de distúrbio e mutação dos agentes, limitados a 1, 5, 10 e 20 regiões}
+    \label{fig:A02boxplot}
+    \fonte{O próprio autor}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/A0_A0.1_boxplot.svg}
+    \caption{Comparação de 20 valores de função objetivo do experimento com os três agentes GRASP, ILS e GA para a configuração com vários agentes com as mesmas configurações para o caso com 10 regões}
+    \label{fig:A0A01boxplot}
+    \fonte{O próprio autor}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/A0_A0.2_boxplot.svg}
+    \caption{Comparação de 20 valores de função objetivo do experimento com os três agentes GRASP, ILS e GA para a configuração com vários agentes com diferentes configurações de distúrbio e mutação para o caso com 10 regões}
+    \label{fig:A0A02boxplot}
+    \fonte{O próprio autor}
+\end{figure}
+
+\section{Efeito da combinação de diferentes agentes populacionais}
+\label{sec:diversidade}
+
+\begin{figure}
+    \centering
+    \includesvg[scale=0.8]{./imagens/A0.2_boxplot.svg}
+    \caption{Comparação de 20 valores de função objetivo do experimento com os agentes GRASP, 2 agentes ILS e 4 agentes GA, variando o parâmetro de distúrbio e mutação dos agentes, limitados a 1, 5, 10 e 20 regiões}
+    \label{fig:A02boxplot}
+    \fonte{O próprio autor}
+\end{figure}
+
+\section{Síntese do resultado e considerações finais}
+\label{sec:sinteseDiversidade}
+% - Quais amostras foram coletadas
+
+% - Qual foi a configuração deste experimento
+
+% - Quais os dados foram colhidos das amostras
+
+% - Quais as ressalvas eu devo fazer a esse experimento

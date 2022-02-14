@@ -1,0 +1,72 @@
+% -----------------------------------------------------------------------------
+%   Arquivo: ./02-elementos-textuais/introducao.tex
+% -----------------------------------------------------------------------------
+
+
+
+\chapter{Introdução}
+\label{chap:introducao}
+
+Em geral, o desenvolvimento de meta-heurísticas e suas combinações são difíceis de abordar pois é necessário um grande conhecimento do problema, e uma vez desenvolvida, é necessário calibrar os parâmetros numéricos do algoritmo, que podem ser muitos \cite{stutzle2018}. Isso torna um algoritmo eficiente em um tipo particular de problema ou em uma família de problemas, mas ineficiente em encontrar boas soluções para problemas diferentes.
+
+Uma alternativa ao desenvolvimento de novas meta-heurísticas, ou a hibridização manual delas, é utilizar os mecanismos de colaboração e comunicação próprios da modelagem de sistemas multi-agentes (MMAS) para promover uma hibridização dinâmica de diferentes estratégias de busca \cite{gong2015, zheng2015, fernandes2009, milano2004}. São várias as arquiteturas e \textit{frameworks} disponíveis na literatura que alcançaram bons resultados utilizando a MMAS, entre elas destacam-se: AGE, CMA, JABAT, MACS, MANGO, AMAM \cite{silva2018} e a D-Optimas, objeto de estudo do presente trabalho.
+
+A arquitetura D-Optimas é uma evolução da BIMASCO (\textit{BIo-Inspired Multi-Agent System for Combinatorial Optimization}, proposta inicialmente por \citeonline{saliba2010}. À época, o objetivo do autor era encapsular diferentes estratégias de busca em agentes, dotados de um mecanismo de aprendizagem bio-inspirada, de modo que eles pudessem colaborar e aprender a investigar o espaço de busca. A primeira versão da arquitetura era baseada em \textit{threads} utilizando comunicação assíncrona e os agentes interagiam com o espaço de busca de maneira não determinística. Outro conceito interessante apresentado no trabalho é a segmentação do espaço de busca em regiões de interesse. 
+As interações entre os agentes e regiões permitiria uma hibridização dinâmica das meta-heurísticas, voltadas para um problema específico, sem um grande esforço de configuração e calibração de parâmetros.
+
+\citeonline{denise2014} tornou a arquitetura genérica, propondo as abstrações necessárias para desacoplar o funcionamento das meta-heurísticas das particularidades de cada problema. Dando continuidade ao trabalho, \citeonline{marcus2015} criou o modelo de comunicação entre os agentes, permitindo que eles pudessem colaborar, e verificou que de fato essa colaboração leva a arquitetura a encontrar soluções de melhor qualidade. Além disso, o autor propôs uma primeira implementação das regiões, dando ao espaço de busca uma dinâmica temporal. Entretanto, os autores tiveram dificuldades em executar experimentos de larga escala, retirar dados em grande escala, que permitiriam análises estatísticos mais robustas. Essas dificuldades estavam ligadas principalmente à uma limitação tecnológica do modelo de concorrência utilizado, baseado em \textit{threads} e compartilhamento de memória. 
+
+% O modelo de atores é um estilo de concorrência baseado em troca de mensagens, muito adequado a modelagem de sistemas multi-agentes
+\citeonline{pacheco} então propôs remodelar a arquitetura BIMASCO, mudando o mecanismo de concorrência utilizado, a fim de contornar a dificuldade de execução em problemas de larga escala. Essa nova versão da arquitetura, chamada de D-Optimas, foi implementada utilizando a biblioteca \textit{akka}, que implementa o modelo de atores \cite{hewitt2013}. Este é um modelo de concorrência mais moderno, baseado em troca de mensagens assíncronas, e não bloqueantes. Esse novo paradigma permitiu a execução de centenas de  agentes/regiões em um \textit{cluster} com 2 nós, entretanto não foi possível verificar o desempenho da arquitetura em \textit{clusters} maiores. O principal impedimento de estudos mais complexos era principalmente a falta de resiliência a falhas, que se tornam muito mais comuns à medida que os sistemas distribuídos crescem.
+
+% a biblioteca de atores utilizada oferece ferramentas para construir sistemas distribuídos, robustos, resilientes a falhas 
+
+Entretanto, a execução da arquitetura D-Optimas ficou restrita à um número limitado de nós em um \textit{cluster}, bem como à uma pequena diversidade de agentes. Estendê-la, permitindo a execução em um \textit{cluster} com um número indeterminado de nós, é essencial para a resolução de problemas em larga escala, bem como para extração de dados confiáveis necessários na análise de desempenho da arquitetura. Além disso, incluir novos algoritmos é essencial na criação de um sistema multiagente distribuído aplicado na solução de problemas de otimização. 
+
+\section{Motivação}
+% pra que? qual o contexto o que leva a desenvolver, todas as características e condições que favorecem o desenvolvimento 
+
+% por que usar meta-heurísticas pra otimização?
+Existem vários problemas da vida prática que, apesar de parecerem complexos, de larga escala e difíceis de resolver, podem ser resolvidos em milésimos de segundos, mesmo em computadores cuja as configurações são muito básicas. Por exemplo, para navegar por uma cidade desconhecida, em que o tráfego varia muito nos horários de pico, hoje é possível abrir um aplicativo no celular que calcula a rota com o menor custo até o destino em questão de segundos. Para calcular essa rota, um algoritmo de caminho mínimo \cite{xu2007} investiga as várias possíveis ruas, analisa dados obtidos de outros usuários, dados fornecidos pelo sistema de trânsito da cidade, e chega ao resultado ótimo com um tempo muito pequeno, que é normalmente uma função polinomial do tamanho da entrada. Neste caso, o tamanho da entrada pode ser considerado o tamanho da cidade, a quantidade de ruas e cruzamentos. 
+
+Este problema clássico apresentado acima é considerado um problema de otimização, onde o objetivo é encontrar um subconjunto dos dados de entrada que levam a um valor mínimo de uma função. Quando a relação entre o tempo para resolver o problema e o tamanho da entrada é uma função polinomial, a literatura classifica esse problema como $\mathcal{P}$ \cite{karp1972}. Entretanto, nem todo problema pode ser resolvido em tempo polinomial por um computador convencional. Por exemplo, é possível modificar ligeiramente o problema acima de modo que ele se torne muito mais difícil para ser resolvido. O motorista do veículo poderia ser um entregador que precisa parar em uma lista de destinos, e quer saber a rota com menor distância que passe por todos os destinos, mas não repita nenhuma rua ou avenida. Neste caso, a literatura desconhece uma estratégia melhor do que investigar sistematicamente cada uma das possíveis combinações de ruas da cidade. A relação entre o tempo e o tamanho da entrada neste caso é exponencial. Resolver este problema de forma exata para uma entrada pequena, por exemplo, um bairro com cinquenta ruas, é computacionalmente impraticável, podendo levar aproximadamente nove décadas para ser resolvido. A literatura classifica problemas deste tipo como $\mathcal{NP}$ \cite{li2015}.
+
+Para resolver problemas da classe $\mathcal{NP}$ a literatura propõe o uso de heurísticas, estratégias de busca focadas para resolver um problema específico, e meta-heurísticas que são estratégias de busca genéricas. Essas estratégias podem ter inspiração biológica, \textit{e.g.} o algoritmo genético \cite{whitley1994}, ou serem baseadas em outros fenômenos ou propriedades do problema (heurísticas gulosas, recozimento simulado, são dois exemplos de heurísticas sem qualquer inspiração biológica). Os métodos heurísticos normalmente utilizam procedimentos estocásticos para produzir e modificar soluções para o problema e caminhar em direção a um valor ótimo, que pode ser um ótimo global ou não. Algumas heurísticas possuem vários parâmetros de configuração, o que as vezes dificulta a sua utilização, pois os parâmetros afetam diretamente a convergência do algoritmo. 
+
+% não existe meta-heurísticas boas pra qualquer problema
+% há hipotese de que a hibridização pode obter resultados melhores
+Por essas características estocásticas inerentes aos métodos heurísticos, não existe nenhum método que seja bom em todos os problemas de otimização \cite[p. 30-32]{eiben2015}. Uma alternativa a essa limitação das meta-heurísticas é unir características positivas de diferentes algoritmos em um único. Esta técnica, conhecida como hibridização,  mostra-se ser mais robusta na solução de problemas mais complexos. De toda forma, a hibridização de meta-heurísticas normalmente leva a um número maior de parâmetros de configuração, o que torna o ajuste de parâmetros mais complexo e necessário.
+
+
+\section{Justificativa}
+% por que desenvolver? que problema isso resolve? por que é importante resolver esse problema?
+
+% consolida a arquitetura D-Optimas como um sistema robusto
+A arquitetura D-Optimas tem um grande potencial para ser aplicada em problemas de otimização de larga escala, uma vez que já é um sistema bem robusto. Ela se consolidou como um sistema multi-agentes, baseado num padrão de projeto de software moderno, no Manifesto Reativo \footnote{https://www.reactivemanifesto.org/}. Além disso, possui vários algoritmos implementados e adaptados para funcionarem em qualquer problema em um ambiente distribuído. Conta com mecanismos de aprendizagem, de memória e de colaboração entre os agentes. Todos esses mecanismos trabalhando em conjunto permitem uma hibridização dinâmica das estratégias de busca, criando uma hiper-heurística sob demanda, dado um problema de otimização.
+
+Estender a arquitetura D-Optimas como um sistema distribuído resiliente a falhas, permitirá executá-la para solucionar diferentes problemas de otimização, em maiores escalas, nos quais a maioria dos algoritmos clássicos enfrenta dificuldade em encontrar bons resultados. As técnicas de hibridização de meta-heurísticas obtém melhores resultados neste tipo de problema, mas normalmente requerem algum conhecimento prévio do problema e um ajuste fino de parâmetros. Estudar um modelo automático para hibridizar metaheurísticas configura-se um tópico de pesquisa amplo na área de otimização. Além disso, esta pesquisa permitirá a execução da arquitetura em infraestruturas modernas, como os provedores de nuvem, sendo possível  disponibilizá-la como um \textit{Software as a Service} (SaaS).
+
+\section{Objetivos}
+
+O objetivo geral deste trabalho é consolidar a arquitetura D-Optimas do ponto de vista de um sistema distribuído, tolerante a falhas, com balanceamento de carga e transparência de localidade, tornando-a resiliente e escalável horizontalmente. Com isso será possível executar simulações com problemas de larga escala em um \textit{cluster} com uma variedade de agentes e estratégias de busca. Espera-se observar a adaptação da arquitetura ao problema, com os agentes colaborando, e dessa forma, verificar, neste comportamento,  o surgimento de uma hibridização dinâmica das meta-heurísticas.
+
+Para atingir este objetivo geral, é necessário cumprir os seguintes objetivos específicos: 
+
+\begin{itemize}
+    \item Compreender a arquitetura D-Optimas, seus fundamentos teóricos e seus mecanismos de generalização de problemas
+    \item Estender arquitetura permitindo sua execução em um \textit{cluster} com um número arbitrário de nós
+    \item Aprimorar os algoritmos da arquitetura, em especial os que definem o comportamento das regiões, para que não dependam de um conhecimento prévio do problema 
+    \item Estender a D-Optimas, adicionando novas meta-heurísticas
+    \item Submetê-la a uma bateria de experimentos com diferentes problemas, a fim de obter resultados confiáveis
+    \item Submeter os dados a uma análise estatística adequada 
+\end{itemize}
+
+\section{Organização do Trabalho}
+
+Situado o contexto deste trabalho, o \autoref{chap:revisao} fará uma revisão das arquiteturas de software encontradas na literatura que possuem características em comum com a D-Optimas. As principais características levadas em conta nesta seleção foram o uso da modelagem multi-agentes e a possibilidade de execução em sistemas multi-cores ou \textit{clusters}. Este capítulo também revisita o histórico da arquitetura D-Optimas, desde a sua origem na arquitetura BIMASCO, apresentando detalhes dos seus componentes e funcionamento. 
+
+O \autoref{chap:metodologia} apresenta a metodologia adotada no desenvolvimento deste trabalho. Neste capítulo, a principal hipótese que fundamentou a construção da arquitetura D-Optimas é retomada, a saber: que a diversidade de estratégias melhora o desempenho da arquitetura em diferentes problemas de otimização. As premissas que contornam o problema de pesquisa são delineadas, entre elas, a principal, de que a estocasticidade da arquitetura impede na maioria das vezes o uso de testes estatísticos paramétricos. É também apresentado o procedimento experimental e o esquema de coleta de dados.
+
+A nova organização da arquitetura D-Optimas é apresentada no \autoref{chap:desenvolvimento}. Esta nova versão utiliza outras ferramentas importantes da biblioteca \textit{akka}, a saber, o \textit{akka-cluster}, \textit{akka-sharding} e \textit{akka-persistence}, que permitem aos agentes manterem um estado distribuído e persistente da arquitetura. O novo funcionamento das regiões é detalhado, e a adaptação de novas meta-heurísticas à arquitetura é descrita.
+
+Por fim, o \autoref{chap:resultados} apresenta os resultados obtidos em experimentos preliminares, para avaliar a escalabilidade e funcionamento do novo modelo da arquitetura. O \autoref{chap:conclusao} apresenta as conclusões do trabalho e os próximos passos para este projeto de pesquisa. 

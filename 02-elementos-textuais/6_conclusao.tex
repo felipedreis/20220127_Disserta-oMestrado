@@ -1,0 +1,54 @@
+\chapter{Conclusão}
+\label{chap:conclusao}
+
+Este projeto de dissertação apresentou  a arquitetura D-Optimas, um sistema multi-agentes distribuído para a solução de problemas de otimização. O \autoref{chap:introducao} apresentou elementos da literatura e problemas da vida prática que motivaram o desenvolvimento de um sistema dinâmico para a hibridização de metaheurísticas em larga escala. 
+
+O \autoref{chap:revisao} apresenta algumas arquiteturas e \textit{frameworks} para a resolução de problemas de otimização baseado em agentes, que possuem alguma característica distribuída. A maioria dos trabalhos encontrados na literatura são baseados em JADE (\textit{Java Agent DEvelopment Framework}), que dá suporte a programação distribuída. Entretanto, nenhum desses trabalhos apresentam resultados da solução de problemas de larga escala em um \textit{cluster}. O histórico da arquitetura D-Optimas é também apresentado neste capítulo, desde a sua primeira implementação, porposta por \citeonline{saliba2010}, até a sua última versão proposta por \citeonline{pacheco}, tendo sido completamente remodelada sobre o \textit{toolkit akka}.
+
+Para permitir a execução da arquitetura em um número indeterminado de nós, algumas melhorias foram propostas no \autoref{chap:desenvolvimento}. O principal objetivo dessas melhorias eram prover um mecanismo de balanceamento de carga, transparência de localidade para as entidades da simulação e tolerância a falhas. Essas melhorias envolveram uma mudança na ontologia dos agentes, regiões e atores supervisores da simulação, bem como uma mudança nos protocolos de comunicação. Além disso, novas meta-heurísticas foram adicionadas e os algoritmos de particionamento e fusão das regiões foi aprimorado, de modo que ele não mais dependa de nenhum conhecimento prévio dos problemas.
+
+Para avaliar os efeitos da nova organização dos atores na simulação o capítulo anterior propôs um experimento preliminar que comparou a média da latência de quatro tipos de mensagens na arquitetura, variando o número de nós no \textit{cluster}  de 3 à 6. A análise estatística permitiu dizer com 95\% de confiança que houve diferença nas latências sempre que dois ou mais nós eram adicionados à simulação. 
+
+\section{Atividades programadas e cronograma}
+
+Para dar prosseguimento a esse projeto de pesquisa, as seguintes atividades são propostas. O \autoref{tab:crono} apresenta o cronograma de execução destas atividades.
+
+\begin{enumerate}
+    \item Verificação do funcionamento das novas meta-heurísticas e do funcionamento das regiões;
+    \item Reintegração dos mecanismos de aprendizagem e memória dos agentes;
+    \item Inclusão de novos problemas na arquitetura, principalmente os de caráter combinatório;
+    \item Planejamento dos experimentos para avaliar a corretude do modelo;
+    \item Planejamento de experimentos para avaliar o desempenho da arquitetura em diferentes tipos de problema; 
+    \item Execução dos experimentos planejados;
+    \item Análise dos resultados obtidos;
+    \item Finalização da escrita do trabalho;
+    \item Defesa para a banca examinadora;
+\end{enumerate}
+
+\begin{quadro}
+\caption{\label{tab:crono}Cronograma com as atividades previstas para o trabalho, com prazos de Dezembro de 2020 à Abril de 2021.}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+     \textbf{Atividade} & \textbf{Dez} & \textbf{Jan} & \textbf{Fev} & \textbf{Mar} & \textbf{Abr}   \\
+     \hline
+     1 & X &   &   &   &\\
+     \hline
+     2 & X & X &   &   &\\
+     \hline
+     3 &   & X &   &   &\\
+     \hline
+     4 &   &   & X &   &\\
+     \hline
+     5 &   &   & X &   &\\
+     \hline
+     6 &   &   &   & X & \\
+     \hline
+     7 &   &   &   & X & \\
+     \hline
+     8 &   &   &   & X & X \\
+     \hline
+     9 &   &   &   &   & X\\
+     \hline
+\end{tabular}
+\end{quadro}

@@ -1,0 +1,221 @@
+%
+% Modelo de trabalho acadêmico monográfico (Tese de Doutorado, Dissertação de Mestrado
+% ou Projeto de Qualificação) em português brasileiro e em conformidade com as normas da ABNT
+%
+% Documento principal
+% Data: 07 de outubro de 2014
+%
+% *****************************************************************************
+% *  Centro Federal de Educação Tecnológica de Minas Gerais - CEFET-MG        *
+% *  Laboratório de Sistemas Inteligentes - LSI                               *
+% *                                                                           *
+% *  Autor: Henrique E. Borges <henrique@lsi.cefetmg.br>                      *
+% *  Autor: Denise de Souza <densouza@gmail.com>                              *
+% *  Autor: Cristiano Fraga G. Nunes <cfgnunes@gmail.com>                     *
+% *  Autor: Lauro César <https://code.google.com/p/abntex2/>                  *
+% *                                                                           *
+% *****************************************************************************
+
+
+
+\documentclass[
+     % twoside,					% Impressão em frente (anverso) e verso. Oposto a oneside
+      oneside,					% Impressão apenas no anverso. Oposto a twoside
+      a4paper,					% Tamanho do papel
+%   opções do pacote babel
+      %english,					% Idioma adicional para hifenização
+      brazilian,				% O ultimo idioma indicado será o principal idioma do documento    
+]{abntex2-cefetmg} 
+
+
+
+
+% -----------------------------------------------------------------------------
+%    Configura as citações bibliográficas conforme a norma ABNT
+% -----------------------------------------------------------------------------
+
+\usepackage[brazilian,hyperpageref]{backref}
+\usepackage[alf, 
+abnt-emphasize=bf, 
+bibjustif, 
+recuo=0cm,
+abnt-doi=expand,                % Expande um endereço iniciado com doi: para http://dx.doi.org/
+abnt-url-package=url,           % utiliza o pacote url
+abnt-refinfo=yes,               % utiliza o estilo bibliográfico abnt-refinfo
+abnt-etal-cite=3, 
+abnt-etal-list=3,
+abnt-thesis-year=final]{abntex2cite}	% Formata as citações bibliográficas conforme a norma ABNT
+
+
+% -----------------------------------------------------------------------------
+%    Pacotes utilizados 
+% -----------------------------------------------------------------------------
+
+\usepackage[utf8]{inputenc}		% Codificação do documento (conversão automatica dos acentos)
+\usepackage[T1]{fontenc}		% Seleção de código de fonte
+
+% \usepackage{palatino}			% Usa a fonte Palatino (Maior)
+ \usepackage{lmodern}			% Usa a fonte Latin Modern (Alain)
+
+
+\usepackage{upgreek}			% Permite inserção de letras gregas
+\usepackage{latexsym}			% Permite inserção de símbolos matemáticos
+\usepackage{amsfonts, amssymb, amsmath, dsfont}		% fontes e símbolos matemáticos
+
+\usepackage{lscape}				% Permite páginas em modo "paisagem"
+\usepackage{indentfirst}		% Indenta o primeiro parágrafo de cada seção.
+\usepackage{microtype} 			% Melhora a justificação do documento
+\usepackage{hyperref} 			% Usado para criar “hyperlinks” no PDF
+% \usepackage[hyphens]{url}    	% Melhora apresentação de URLs
+% \usepackage{url}              	% Melhora apresentação de URLs
+\usepackage{breakurl}			% Permite quebra de linha em URLs longas
+
+\usepackage[bottom]{footmisc}	% Mantém as notas de rodapé sempre na mesma posição
+\usepackage{verbatim}			% Permite apresentar texto tal como escrito no documento, ainda que sejam comandos Latex
+
+\usepackage[pointedenum]{paralist} 		% Usado elaborar listas numeradas ou de “bullets”, aninhadas ou não 
+
+\usepackage{graphicx}			% Inclusão de gráficos e figuras
+
+\usepackage{subfig}		    % Permite posicionar figuras
+% \usepackage{picinpar}			% Permite posicionar imagens em parágrafos
+% \usepackage{psfrag}			% Inclusão de símbolos latex em figuras eps
+\usepackage{tikz}	 			% Pacote para desenhos
+\usepackage{color, colortbl}	% Controle das cores
+\usepackage{booktabs}			% Réguas horizontais em tabelas
+\usepackage{multirow, array}	% Permite tabelas com múltiplas linhas e colunas
+\usepackage[Algoritmo]{algorithm}		% Permite escrever algoritmos em português
+\usepackage{algpseudocode}
+\usepackage{float}				% Necessário para tabelas/figuras em ambiente multi-colunas
+								% Devem ser, necessariamente, colocados em pontos específicos junto com [H] (e.g., \begin{table}[H])
+\usepackage{subeqnarray}		% Permite subnumeracao de equações
+
+\usepackage{babel}				% Usado para definir idioma do documento e respectivas hifenizações
+
+
+
+\usepackage{bookmark}			% Cria menu de bookmarks
+% \usepackage{nomencl} 			% Usado para produzir lista de símbolos
+\usepackage{makeidx}			% Usado para produzir índice remissivo (glossário)
+\usepackage{epigraph}
+
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{svg}
+
+\usepackage[outdir=./imagens/]{epstopdf}
+
+\epigraphfontsize{\small\itshape}
+\setlength\epigraphwidth{15cm}
+\setlength\epigraphrule{0pt}
+
+	\makeindex 					% Compila o índice
+	
+% Redefinição de labels
+\renewcommand{\algorithmautorefname}{Algoritmo}
+
+\let\oldtheequation\theequation
+    \makeatletter
+    \def\tagform@#1{\maketag@@@{\ignorespaces#1\unskip\@@italiccorr}}
+    \renewcommand{\theequation}{(\oldtheequation)}
+    \makeatother 
+
+\usepackage{indentfirst}
+\usepackage{svg}
+
+
+%   Insere e constroi alguns elementos pré-textuais para gerar capa, folha de rosto
+
+\include{./01-elementos-pre-textuais/capa}
+\include{./01-elementos-pre-textuais/folhaRosto}
+
+% -----------------------------------------------------------------------------
+%   Configurações de aparência do PDF final
+% -----------------------------------------------------------------------------
+
+\definecolor{blue}{RGB}{41,5,195}	% Altera o aspecto da cor azul
+
+\makeatletter
+\hypersetup{
+	portuguese,
+    colorlinks=false,       	% true: “links” coloridos; false: “links” em caixas de texto
+	linkcolor=blue,			% Define cor dos “links” internos”
+	citecolor=blue,			% Define cor dos “links” para as referências bibliográficas
+	filecolor=blue,			% Define cor dos “links” para arquivos
+	urlcolor=blue, 			% Define a cor dos “hiperlinks”
+	breaklinks=true,
+	pdftitle={\@title},
+	pdfauthor={\@author},
+	pdfsubject={\imprimirpreambulo},
+	pdfkeywords={abnt, latex, abntex, abntex2}
+}
+\makeatother
+
+
+
+% -----------------------------------------------------------------------------
+%   Hifenização de palavras não constantes do dicionário
+% -----------------------------------------------------------------------------
+
+\hyphenation{
+		qua-dros-cha-ve
+		Bras-nett
+		Kat-sa-gge-los
+}
+
+
+
+% -----------------------------------------------------------------------------
+%   Inclui todos os arquivos do trabalho acadêmico
+% -----------------------------------------------------------------------------
+
+\graphicspath{./imagens/}
+
+\begin{document}
+
+\frenchspacing				%   Retira o espaço extra desnecessário nas frases
+
+%   Gera e imprime alguns elementos pré-textuais: capa, folha de rosto e folha de aprovação
+
+\pretextual
+ \imprimircapa 											% Comando para imprimir Capa
+ \imprimirfolhaderosto{} 								% Comando para imprimir Folha de rosto
+%   Insere os demais elementos pré-textuais
+
+ %\include{./01-elementos-pre-textuais/listaQuadros}		% Lista de quadros
+ \include{./01-elementos-pre-textuais/sumario}			    % Sumário
+\include{./01-elementos-pre-textuais/resumo}
+
+%   Insere os elementos textuais
+\textual
+ \include{./02-elementos-textuais/1_introducao}			% Introdução
+ \include{./02-elementos-textuais/2_revisaoLiteratura}	% Descrição do Problema
+ \include{./02-elementos-textuais/3_metodologia}			    % Simulação Computacional
+ %\include{./02-elementos-textuais/resultadosEsperados}			    % Resultados Esperados
+ \include{./02-elementos-textuais/4_desenvolvimento}
+ 
+ \include{./02-elementos-textuais/5_0_experimento_escala_e_mem}
+ 
+ \include{./02-elementos-textuais/5_1_experimento_diversidade}
+ 
+ \include{./02-elementos-textuais/6_conclusao}
+ 
+ % Metodologia
+ %\include{./02-elementos-textuais/infraestruturaNecessaria}		% Infraestrutura necessária
+ %\include{./02-elementos-textuais/cronograma}				% Cronograma
+
+%   Insere os elementos pós-textuais
+\postextual
+ \include{./03-elementos-pos-textuais/referencias}		% Referências
+
+
+
+% -----------------------------------------------------------------------------
+%   Os elementos pré-textuais, textuais e pós-textuais deverão ajustados conforme o
+%   tipo de trabalho acadêmico: Tese de Doutorado, Dissertação de Mestrado ou
+%   Projeto de Qualificação de Mestrado ou Doutorado
+% -----------------------------------------------------------------------------
+
+
+
+\end{document}
