@@ -6,13 +6,13 @@
 \chapter{Desenvolvimento}
 \label{chap:desenvolvimento}
 
-Algumas arquiteturas para resolução de problemas de otimização foram apresentadas no \autoref{chap:revisao}, em especial as que possuem alguma característica de paralelismo, seja em um único computador, utilizando \textit{multi-threading} ou em um \textit{cluster}, e que sejam baseadas em agentes. Dentre essas se destaca a arquitetura D-Optimas, objeto de estudo do presente trabalho. 
+Algumas arquiteturas para resolução de problemas de otimização baseadas em agentes foram apresentadas no \autoref{chap:revisao}, em especial as que possuem alguma característica de paralelismo, seja em um único computador, utilizando \textit{multi-threading}, ou em um \textit{cluster}. Dentre essas se destaca a arquitetura D-Optimas, objeto de estudo do presente trabalho. 
 
-Nesta arquitetura, os agentes encapsulam metaheurísticas e interagem entre si trocando soluções através de um ambiente virtual, buscando aprender nesse ambiente a encontrar soluções de boa qualidade pra qualquer problema de otimização. O ambiente virtual, ou mundo virtual, é composto de soluções que são abrigadas em conjuntos disjuntos, chamados de regiões. O objetivo é que os agentes interajam com as regiões, e não com as soluções diretamente, ''compreendendo'', de maneira genérica, partes do espaço de busca que sejam mais ou menos interessantes. Da mesma forma, espera-se que as regiões possam apresentar uma dinâmica, podendo se fundir ou se particionar, de modo que se adaptem à geometria do espaço de busca de qualquer problema de otimização.   
+Nesta arquitetura, os agentes encapsulam metaheurísticas e interagem entre si trocando soluções através de um ambiente virtual, buscando aprender nesse ambiente a encontrar soluções de boa qualidade para qualquer problema de otimização. O ambiente virtual, ou mundo virtual, é composto de soluções que são abrigadas em conjuntos disjuntos, chamados de regiões. O objetivo é que os agentes interajam com as regiões, e não com as soluções diretamente, ''compreendendo'', de maneira genérica, partes do espaço de busca que sejam mais ou menos interessantes. Da mesma forma, espera-se que as regiões possam apresentar uma dinâmica, podendo se fundir ou se particionar, a se adaptem à geometria do espaço de busca de qualquer problema de otimização.   
 
-A arquitetura D-Optimas foi construída baseada no modelo de atores para ser um sistema distribuído. Entretanto, alguns aspectos importantes que são inerentes à um sistema distribuído foram negligenciados na sua primeira versão, principalmente questões relacionadas ao balanceamento de carga, transparência de localidade e resiliência a falhas.
+A arquitetura D-Optimas foi construída baseada no modelo de atores para ser um sistema distribuído. Entretanto, alguns aspectos importantes que são inerentes à um sistema distribuído foram negligenciados na sua primeira versão, principalmente nas questões relacionadas ao balanceamento de carga, transparência de localidade e resiliência a falhas.
 
-Em um sistema que cresce com o passar do tempo, com agentes produzindo soluções, regiões se fundindo, sendo criadas e se particionando, é importante que o sistema possa criar as agentes e regiões nos nós do \textit{cluster} de maneira equilibrada, de modo a não onerar nenhum nó em particular, fazendo mal uso dos recursos computacionais. A transparência de localidade também deve ser uma característica de um sistema que se propõe a resolver problemas de grande escala, sendo necessário executá-lo em um \textit{cluster} computacional, onde é difícil conhecer previamente os endereços \textit{IPs} das máquinas que executarão o experimento. A resiliência a falhas num sistema distribuído é importante pois falhas na rede são frequentes, um nó pode sair no meio da simulação, e perder as soluções que estavam nele não é aceitável, uma vez que a função objetivo pode ser complexa e custosa para se calcular.
+Em um sistema que cresce com o passar do tempo, com agentes produzindo soluções, regiões se fundindo, sendo criadas e se particionando, é importante que o sistema possa criar os agentes e regiões nos nós do \textit{cluster} de maneira equilibrada, de modo a não onerar nenhum nó em particular, fazendo mal uso dos recursos computacionais. A transparência de localidade também deve ser uma característica de um sistema que se propõe a resolver problemas de grande escala, sendo necessário executá-lo em um \textit{cluster} computacional, onde é difícil conhecer previamente os endereços \textit{IPs} das máquinas que executarão o experimento. A resiliência a falhas num sistema distribuído é importante pois falhas na rede são frequentes, um nó pode sair no meio da simulação, e perder as soluções que estavam nele não é aceitável, uma vez que a função objetivo pode ser complexa e custosa para se calcular.
 Outro fator importante é a necessidade de uma definição mais precisa da dinâmica das regiões,  que não foi apresentada nos trabalhos anteriores.
 
 Deste modo, neste capítulo a \autoref{sec:topologia} descreve de maneira mais detalhada os conceitos de sistemas distribuídos e os problemas encontrados na arquitetura, bem como apresenta uma nova topologia para os agentes e regiões, baseada na biblioteca \textit{akka-cluster}. A \autoref{sec:dinamica} apresenta os detalhes da dinâmica das regiões, como elas são criadas e quais as condições que permitem à elas fazer fissão e fusão. Por fim, a \autoref{sec:algoritmos} apresenta os algoritmos que foram adicionados à arquitetura, e como esse processo se deu no contexto das abstrações propostas por \citeonline{denise2014} para a generalização de metaheurísticas.
@@ -48,11 +48,11 @@ Por fim, um último ponto que é crítico para a escalabilidade de um sistema é
  
  A \autoref{fig:d_optimas_new} ilustra a nova organização proposta da arquitetura. Cada ator é representado por uma elipse, os responsáveis por gerenciar a simulação tem a borda pontilhada, e os agentes e regiões, por sua vez, têm as bordas contínuas. As linhas contínuas indicam que os atores se comunicam no mesmo nó, e as linhas tracejadas indicam que os atores se comunicam através da rede. A imagem exemplifica um \textit{cluster} composto por 3 computadores. 
  
- A arquitetura é agora composta de um único ator supervisor por processo, chamado \textbf{SimulationActor}, responsável por gerenciar tanto as regiões quanto os agentes. Quando um nó começa a executar, este é o primeiro ator a ser criado, e há um único para cada processo em execução. O \textbf{SimulationActor} subscreve nos eventos do \textit{cluster} de novo membro (\textbf{MemberUp}), saída de um membro (\textbf{MemberDown}) e de mudança de líder (\textbf{LeaderChanged}), de modo que ele recebe uma mensagem quando qualquer um desses eventos acontece. Quando um segundo nó começa a executar, ambos recebem uma mensagem de que há um novo membro na simulação. Neste ponto, a biblioteca \textit{akka-cluster} elege um líder. Doravante, sempre que o \textbf{SimulationActor} for mencionado, este deve ser associado imediatamente com o líder da simulação, e caso seja necessário falar de um outro ator do mesmo tipo em um nó qualquer, essa distinção será feita. 
+ A arquitetura é agora composta por um único ator supervisor por processo, chamado \textbf{SimulationActor}, responsável por gerenciar tanto as regiões quanto os agentes. Quando um nó começa a executar, este é o primeiro ator a ser criado, e há um único para cada processo em execução. O \textbf{SimulationActor} subscreve nos eventos do \textit{cluster} de novo membro (\textbf{MemberUp}), saída de um membro (\textbf{MemberDown}) e de mudança de líder (\textbf{LeaderChanged}), de modo que ele recebe uma mensagem quando qualquer um desses eventos acontece. Quando um segundo nó começa a executar, ambos recebem uma mensagem de que há um novo membro na simulação. Neste ponto, a biblioteca \textit{akka-cluster} elege um líder. Doravante, sempre que o \textbf{SimulationActor} for mencionado, este deve ser associado imediatamente com o líder da simulação, e caso seja necessário falar de um outro ator do mesmo tipo em um nó qualquer, essa distinção será feita. 
   
  O líder tem um papel importante ao longo da execução da simulação. Dentro da especificação da biblioteca \textit{akka-cluster}, ele é o responsável por tarefas administrativas relacionadas ao \textit{cluster}, como por exemplo permitir a entrada de novos membros ou remover um nó que está em estado inacessível. No caso da simulação do D-Optimas, o \textbf{SimulationActor} também é o responsável por iniciar e finalizar a simulação, criar e destruir regiões e manter os agentes atualizados sobre o estado do espaço de busca. Ele também mantém dados estatísticos das regiões, que serão detalhados na seção a seguir. 
  
-Ao longo do texto pode parecer que o líder tem um papel crítico na execução da simulação, e que isso pode caracterizar algum tipo de gargalo, ponto único de falha ou controle central. Entretanto, o líder exerce fundamentalmente um papel de coordenador, podendo inclusive ser mudado ao longo da simulação. Executar algumas das tarefas no líder é uma mera questão de escolha, por ser uma maneira mais simples de implementar um algoritmo num ambiente distribuído, sem a adoção um controle central. Isso tão pouco caracteriza um controle central, pois caso um líder fique inoperante, outro nó assume a liderança quase que imediatamente, sem causar prejuízo ou interrupção da simulação. Este comportamento já é um importante passo dado na direção de promover um sistema resiliência a falhas, desde  que seja possível restaurar os agentes/regiões que estavam subordinados ao nó falho. 
+Ao longo do texto pode parecer que o líder tem um papel crítico na execução da simulação, e que isso pode caracterizar algum tipo de gargalo, ponto único de falha ou controle central. Entretanto, o líder exerce fundamentalmente um papel de coordenador, podendo inclusive ser mudado ao longo da simulação. Executar algumas das tarefas no líder é uma mera questão de escolha, por ser uma maneira mais simples de implementar um algoritmo num ambiente distribuído, sem a adoção um controle central. Isso tão pouco caracteriza um controle central, pois caso um líder fique inoperante, outro nó assume a liderança quase que imediatamente, sem causar prejuízo ou interrupção da simulação. Este comportamento já é um importante passo dado na direção de promover um sistema resiliente a falhas, desde  que seja possível restaurar os agentes/regiões que estavam subordinados ao nó falho. 
  
  Como foi dito, para cada processo criado há um único ator do tipo \textbf{SimulationActor}, que supervisona outros dois atores, o \textit{\textbf{agentShard}} e o \textit{\textbf{regionShard}}. Um ator do tipo \textit{\textbf{Shard}}, disponibilizado na biblioteca \textit{akka-sharding}, um sub-pacote do \textit{akka-cluster}, é o responsável por oferecer transparência de localidade dentro de um \textit{cluster}. Isso permite que os agentes e regiões  troquem mensagens pelo seu endereço lógico, em geral, o nome do ator, em detrimento de seu endereço completo. Caso o \textit{agent-1} queira enviar uma mensagem para a \textit{region-4}, essa mensagem é enviada juntamente com o identificador do destinatário à \textit{shard} mais próxima, que sabe como encaminhar a mensagem ao destinatário. 
  
@@ -69,7 +69,7 @@ O primeiro cenário que será abordado é quando um agente produz a primeira sol
 
 Esse procedimento aleatório se repetirá até que as regiões tenham pelo menos duas soluções. A partir desse momento, o \textbf{SimulationActor} passa a manter alguns dados relativos às regiões, que são: o valor médio, a variância e o coeficiente de variação das funções objetivo de todas as soluções, bem como o número de soluções para cada região. As fórmulas para o cálculo de cada um desses parâmetros estão descritas na \autoref{tab:formulas}. Ele também agrega os dados de cada região para calcular a estatística global do sistema, que compreende a média, desvio padrão e o coeficiente de variação dos valores de função objetivo de todas as soluções existentes, aqui denotados por $\bar{x}_g$, $s_g$ e $CV_g$, respectivamente.
 
-No momento em que cada região tem ao menos duas soluções e o $CV$ de todas as regiões é diferente de zero, para cada nova solução recebida, o \textbf{SimulationActor} sorteia a região que receberá a próxima solução baseado no coeficiente de varição das regiões: regiões com maior $CV$ tem menor probabilidade de receber soluções, enquanto regiões com menor $CV$ tem chances maiores chances de serem escolhidas. Quando uma região recebe uma solução, ela envia uma mensagem do tipo \textbf{UpdateRegionSummary} para o líder, que atualiza a estatística da região, recalcula a estatística global e envia-a para todas as regiões, através de uma mensagem \textbf{UpdateGlobalSummary} contendo os valores de $\bar{x}_g$, $s_g$ e $CV_g$. 
+No momento em que cada região tem ao menos duas soluções e o $CV$ de todas as regiões é diferente de zero, para cada nova solução recebida, o \textbf{SimulationActor} sorteia a região que receberá a próxima solução baseado no coeficiente de variação das regiões: regiões com maior $CV$ tem menor probabilidade de receber soluções, enquanto regiões com menor $CV$ tem chances maiores chances de serem escolhidas. Quando uma região recebe uma solução, ela envia uma mensagem do tipo \textbf{UpdateRegionSummary} para o líder, que atualiza a estatística da região, recalcula a estatística global e envia-a para todas as regiões, através de uma mensagem \textbf{UpdateGlobalSummary} contendo os valores de $\bar{x}_g$, $s_g$ e $CV_g$. 
 
 Sempre que o \textbf{SimulationActor} recebe uma nova solução ele também incrementa um contador, que é considerado o tempo discreto da simulação. Esse tempo é propagado para todos os elementos do \textbf{cluster}, incluíndo os agentes e regiões, utilizando a estratégia de \textit{pig backing} sobre a mensagem de \textbf{UpdateGlobalSummary}. Apesar de funcionar como um relógio lógico global  \cite[p. 244]{tanenbaum}, o tempo discreto não tem o objetivo de criar qualquer mecanismo de sincronização entre os membros da simulação. As mensagens que transmitem soluções são marcadas com esse tempo que é utilizado posteriormente para forçar uma ordenação parcial entre os eventos, facilitando a extração e analise de dados. 
 
@@ -90,7 +90,7 @@ Sempre que o \textbf{SimulationActor} recebe uma nova solução ele também incr
     \end{tabular}
 \end{table}
 
-No que diz respeito à estratégia de escolha das regiões baseada no $CV$, há outras diferentes formas de se fazer essa escolha, \textit{e.g.} sortear aleatoriamente uma região para receber uma solução. Entretanto, o presente trabalho não pretende avaliar o mérito de uma estratégia, ou comparar esta com qualquer outra. O sorteio probabilístico foi escolhido por ser um algoritmo simples, mas não trivial. O algoritmo proposto não oferece nenhuma garantia sobre como a adição de uma nova solução a uma região particular afetará a distribuição dos valores de função objetivo, podendo fazer essa região tanto se tornar mais especializada, com o $CV$ menor, menos especializada, aumentando  o $CV$. A única premissa do procedimento adotado é que regiões muito especializadas tem mais chances de crescerem em quantidade de soluções. 
+No que diz respeito à estratégia de escolha das regiões baseada no $CV$, há outras diferentes formas de se fazer essa escolha, \textit{e.g.}, sortear aleatoriamente uma região para receber uma solução. Entretanto, o presente trabalho não pretende avaliar o mérito de uma estratégia, ou comparar esta com qualquer outra. O sorteio probabilístico foi escolhido por ser um algoritmo simples, mas não trivial. O algoritmo proposto não oferece nenhuma garantia sobre como a adição de uma nova solução a uma região particular afetará a distribuição dos valores de função objetivo, podendo fazer essa região tanto se tornar mais especializada, com o $CV$ menor, menos especializada, aumentando  o $CV$. A única premissa do procedimento adotado é que regiões muito especializadas tem mais chances de crescerem em quantidade de soluções. 
 
 % dinâmica interna
 As regiões, apesar de não escolherem quais soluções receberão, tem autonomia para se particionar ou se fundir, sendo assim entidades ativas do sistema. Como atores da plataforma \textit{akka} são entidades reativas que somente respondem a mensagens, que podem ter sido enviadas por um outro ator ou pelo próprio receptor, foi utilizado um artifício já proposto por \citeonline{pacheco}. As regiões recebem uma mensagem chamada \textbf{InternalBehaviour}, que é enviada periodicamente pela própria região. Ao receber essa mensagem, a receptora deve escolher, com uma probabilidade de 50\% entre se separar em três outras regiões ou se fundir com uma outra região.
@@ -101,73 +101,142 @@ Caso uma região região $r$ escolha fazer a fissão, ela deve se certificar de 
 
 Caso essas duas condições sejam satisfeitas a região $r$ se particionará em outras 3 regiões, a saber, as soluções cujo valor de função objetivo estão abaixo de $\bar{x}_{r} - s_{r}$ (cauda inferior), as soluções que estão acima de $\bar{x}_{r} + s_{r}$ (cauda superior) e as soluções que estão entre $\bar{x}_{r} - s_{r}$ e  $\bar{x}_{r} + s_{r}$, onde $\bar{x}_r$ e $s_r$ são a média e o desvio padrão dos valores de função objetivo das soluções que pertencem a região $r$, respectivamente. 
 
-Ao se particionar, a região envia ao \textit{SimulationActor} uma mensagem do tipo \textit{RegionSplit} contendo dois conjuntos de soluções, as da cauda superior e inferior da distribuição. As soluções do centro da distribuição ficam com a região $r$. Ao receber uma mensagem do tipo, \textbf{SimulationActor} verifica se o número máximo de regiões permitidas no sistema não foi atingido, cria as novas regiões com a soluções recebidas. Caso o número máximo já tenha sido atingido, o sistema redistribui aleatoriamente as soluções entre as regiões já existentes. Esse parâmetro do número máximo de regiões também é fornecido no arquivo de configuração do sistema e é necessário para evitar o crescimento exacerbado do número de regiões, levando o sistema a consumir memória de maneira desordenada. 
+Ao se particionar, a região envia ao \textit{SimulationActor} uma mensagem do tipo \textit{RegionSplit} contendo dois conjuntos de soluções, as da cauda superior e inferior da distribuição. As soluções do centro da distribuição ficam com a região $r$. Ao receber uma mensagem do tipo, o \textbf{SimulationActor} verifica se o número máximo de regiões permitidas no sistema não foi atingido e, em caso negativo, cria as novas regiões com a soluções recebidas. Caso o número máximo já tenha sido atingido, o sistema redistribui aleatoriamente as soluções entre as regiões já existentes. Esse parâmetro do número máximo de regiões também é fornecido no arquivo de configuração do sistema e é necessário para evitar o crescimento exacerbado do número de regiões, levando o sistema a consumir memória de maneira desordenada. 
 
 % procedimento de merge
-Caso a região $r_1$ decida por tentar fazer a fusão, ela enviará uma mensagem do tipo \textbf{MergeRequest} para todas as regiões contendo os seus parâmetros estatísticos. Ao receber uma mensagem desse tipo, uma outra região $r_2$ verifica se a união dos dois conjuntos de solução produzira uma nova região $r_3$ cujo $CV_{r_3}$ é menor do que o parâmetro $CV_{r_2}$. Caso essa condição seja satisfeita, a região $r_2$ responde à região $r_1$ com uma mensagem do tipo \textbf{MergeResponse}. Recebendo a primeira mensagem desse tipo, a região $r_1$ imediatamente envia uma mensagem do tipo \textbf{MergeResult} contendo a sua lista de soluções, e se destrói. Outras regiões que tenham respondido à solicitação de $r_1$ terão suas respostas ignoradas, não causando nenhum prejuízo ao sistema.
+Caso a região $r_1$ decida por tentar fazer a fusão, ela enviará uma mensagem do tipo \textbf{MergeRequest} para todas as regiões contendo os seus parâmetros estatísticos. Ao receber uma mensagem desse tipo, uma outra região $r_2$ verifica se a união dos dois conjuntos de solução produzirá uma nova região $r_3$ cujo $CV_{r_3}$ é menor do que o parâmetro $CV_{r_2}$. Caso essa condição seja satisfeita, a região $r_2$ responde à região $r_1$ com uma mensagem do tipo \textbf{MergeResponse}. Recebendo a primeira mensagem desse tipo, a região $r_1$ imediatamente envia uma mensagem do tipo \textbf{MergeResult} contendo a sua lista de soluções, e se destrói. Outras regiões que tenham respondido à solicitação de $r_1$ terão suas respostas ignoradas, não causando nenhum prejuízo ao sistema.
 
 \begin{quadro}[ht!]
     \centering
     \caption{Mensagens trocadas na arquitetura D-Optimas}
     \label{tab:mensagens}
-    \includegraphics[scale=0.75]{imagens/tabela.jpeg}
-    \begin{comment}
-\begin{tabular}{lr{2}r{2.5}r{2}}\toprule
-\textbf{Remetente} &\textbf{Destinatário} &\textbf{Mensagem} &\textbf{Finalidade} \\\midrule
-\multirow{4}{*}{SimulationActor} &RegionActor e AgentActor &SetLeader &Informar a mudança do líder \\
-&\multirow{2}{*}{RegionActor} &UpdateGlobalSummary &Atualizar o sumário global \\
-& &CreateRegion &Inicializar uma nova região \\
-&AgentActor &CreateAgent &Inicializar um novo agente \\
-\multirow{5}{*}{AgentActor} &\multirow{3}{*}{SimulationActor} &AgentRegister &Registrar em um líder \\
-& &AgentRelease &Informar ao líder a saída da simulação \\
-& &SolutionResult &Inserir uma nova solução no sistema \\
-&AgentActor &AgentInternalBehaviour &Atualizar o estado interno do agente \\
-&RegionActor &SolutionRequest &Solicitar soluções à uma região \\
-\multirow{8}{*}{RegionActor} &\multirow{4}{*}{SimulationActor} &RegionRegister &Registrar em um líder \\
-& &RegionRelease &Informar ao líder a saída da simulação \\
-& &UpdateRegionSummary &Atualizar os dados da região no líder \\
-& &RegionSplit &Informar o particionamento de uma região ao líder \\
-&\multirow{3}{*}{RegionActor} &RegionInternalBehaviour &Mudança do estado interno de uma região \\
-& &MergeResponse &Informar a uma região que aceitou a fusão \\
-& &MergeResult &Fundir as soluções da região remetente à destinatária \\
-&AgentActor &SolutionResponse &Forncer soluções ao agente \\
+\begin{tabular}{llcc}
+\toprule
+\textbf{Remetente}                  & \textbf{Destinatário}             & \textbf{Mensagem}     &  \textbf{Finalidade} \\
+\midrule
+\multirow{4}{*}{SimulationActor}    & \multirow{2}{*}{\makecell{RegionActor e\\ AgentActor}} & SetLeader                 & \makecell{Informar a\\mudança do líder} \\
+\cmidrule{3-4}
+                                    &                                       & UpdateGlobalSummary       & \makecell{Atualizar o\\sumário global} \\
+\cmidrule{2-4}
+                                    & RegionActor                           & CreateRegion              & \makecell{Inicializar um\\nova região} \\
+\cmidrule{2-4}
+                                    & AgentActor                            & CreateAgent               & \makecell{Inicializar um\\novo agente} \\
+\midrule
+\multirow{5}{*}{AgentActor}         & \multirow{3}{*}{SimulationActor}      & AgentRegister             & \makecell{Registrar em\\um líder} \\
+\cmidrule{3-4}
+                                    &                                       & AgentRelease              & \makecell{Informar ao líder a\\saída da simulação} \\
+\cmidrule{3-4}
+                                    &                                       & SolutionResult            & \makecell{Inserir uma nova\\solução no sistema} \\
+\cmidrule{2-4}
+                                    & AgentActor                            & AgentInternalBehaviour    & \makecell{Atualizar o estado\\interno do agente} \\
+\cmidrule{2-4}
+                                    & RegionActor                           & SolutionRequest           & \makecell{Solicitar soluções\\à uma região} \\
+\midrule
+\multirow{8}{*}{RegionActor}        & \multirow{4}{*}{SimulationActor}      & RegionRegister            & \makecell{Registrar em\\um líder} \\
+\cmidrule{3-4}
+                                    &                                       & RegionRelease             & \makecell{Informar ao líder\\a saída da simulação} \\
+\cmidrule{3-4}
+                                    &                                       & UpdateRegionSummary       & \makecell{Atualizar os dados\\da região no líder} \\
+\cmidrule{3-4}
+                                    &                                       & RegionSplit               & \makecell{Informar a divisão\\de uma região ao líder} \\
+\cmidrule{2-4}
+                                    & \multirow{3}{*}{RegionActor}          & RegionInternalBehaviour   & \makecell{Mudança do estado\\interno de uma região} \\
+\cmidrule{3-4}
+                                    &                                       & MergeResponse             & \makecell{Informar a uma região\\que aceitou a fusão} \\
+\cmidrule{3-4}
+                                    &                                       & MergeResult               & \makecell{Adicionar as soluções\\do remetente ao\\destinatário} \\
+\cmidrule{2-4}
+                                    & AgentActor                            & SolutionResponse          & \makecell{Fornecer soluções\\ao agente} \\
 \bottomrule
 \end{tabular}
-\end{comment}
+
 \end{quadro}
 
 O \autoref{tab:mensagens} apresenta um resumo de mensagens do sistema, bem como a finalidade de cada mensagem. 
 
-\section{Do mecanismo de memória Q-learning}
+\section{Da dinâmica interna do agente}
 
-% o que é o q-learning
-% qual o modelo básico de atualização da tabela q-learning
-% como esse modelo foi adaptado para funcionar com valores de função objetivo 
-% como o agente utiliza a memória
+Descrita a topologia geral do sistema, bem como a dinâmica interna das regiões, esta seção se dedica a escrutinar o funcionamento interno do agente. Serão aqui apresentados os seus componentes internos, as mensagens recebidas e enviadas pelo agente, o algoritmo de seleção de ação do agente e o funcionamento do seu componente de memória.
+
+% quais são os componentes internos do agente, e quais são suas funcionalidades
+% quais as mensagens recebidas pelo o agente
+%CreateAgent, AgentInternalBehaviour
+Três componentes integram o funcionamento do agente, entre eles: o mecanismo de seleção de ação, o mecanismo de memória e o algoritmo de otimização. O mecanismo de seleção de ação é acionado periodicamente pelo recebimento da mensagem \textbf{AgentInternalBehaviour}. O envio dessa mensagem é agendado no momento da criação do agente, pela mensagem do tipo \textbf{CreateAgent}, enviada pelo \textbf{SimulationActor}. A mensagem que dispara o comportamento é enviada a cada intervalo de  5 segundos. 
+
+% como funciona o mecanismo de seleção de ação
+% SolutionResponse
+Quando acionado, o mecanismo de seleção de ação é responsável por escolher como solicitar soluções para que o agente possa otimizar. Para enviar uma requisição por novas soluções, o agente pode ou utilizar a memória para escolher uma região, ou enviar uma mensagem de \textit{broadcast} a todas as regiões. Essa escolha é ajustada pela probabilidade de utilização da memória, que é fornecida como parâmetro pelo usuário no início da simulação. Ao receber uma mensagem do tipo \textbf{SolutionResponse} contendo as soluções enviadas pela região remetente, o agente executa de maneira síncrona a sua metaheurística, oferecendo o conjunto de soluções como entrada. Após a execução da metaheurística, o agente atualiza a memória e envia a melhor solução encontrada nesta iteração para o \textbf{SimulationActor} utilizando a mensagem do tipo \textbf{SolutionResult}. 
+
+% como funciona o mecanismo de memória
+O sistema de memória do agente é baseado na técnica de aprendizagem por reforço  \textit{Q-Learning}. Essa é uma técnica de aprendizagem por reforço, baseada em uma tabela de mapeamento entre ações e valores de qualidade para cada uma das ações \cite{norvig2018}. A medida em que o agente interage com o ambiente a sua volta, e recebe recompensas pelas suas ações, essa tabela é atualizada. A regra de atualização do \textit{Q-learning} está representada na \autoref{eq:qlearning}. A sequência de ações desempenhadas pelo agente ao longo do tempo, \textit{i.e.}, o seu comportamento, é frequentemente chamado na literatura de \textit{policy}. Dito isto, o aprendizado por qualidade é uma técnica do tipo \textit{off-policy} pois ela explora os possíveis comportamentos do agente enquanto aprende o comportamento ótimo \cite{sutton2018}.
+
+\begin{equation}
+    \begin{split}
+    Q_a(t_{i + 1}) = &\quad Q_a(t_i) + \alpha * (R + \gamma * (max(Q(t_i)) - Q_a(t_i))
+    \end{split}
+    \label{eq:qlearning}
+\end{equation}
+
+A regra de atualização de qualidade $Q$ para cada ação $a$ da tabela está descrita na \autoref{eq:qlearning}, conforme descrita por \citeonline{norvig2018}. O valor de qualidade da ação $Q_a$ é definido segundo seu valor no tempo anterior acrescido pela diferença entre o valor máximo da recompensa futura esperada dentre todos os itens na tabela $max(Q(t_i))$ e o valor atual $Q_a(t_i)$. Esse valor é descontado e ajustado por uma taxa de aprendizado $\gamma$. Essa taxa de aprendizado é utilizada para balancear a recompensa imediata e futura. Finalmente, $R$ é o termo utilizado para a recompensa após completar uma ação do algoritmo. 
+
+% como esse algoritmo foi adaptado para o caso específico 
+No contexto da arquitetura D-Optimas, a única ação possível ao agente é solicitar soluções a uma determinada região. Deste modo, a tabela descrita na \autoref{eq:qlearning} pode ser definida como $Q_r(t)$, que representa o valor da qualidade de solicitar soluções à região $r$ no instante de tempo $t$. O agente $a$ recebe uma recompensa $R$ sempre que consegue encontrar no tempo $t$ um valor de função objetivo $f^{a}_t$ relação à última solução por ele produzida, aqui denominado $f^{a}_{best}$. Caso o agente não consiga melhorar o último resultado encontrado essa recompensa deve ser negativa. Em ambos os casos, o valor de $R$ está diretamente correlacionado com a diferença $\Delta f = f^{a}_{best} - f^{a}_t$. 
+
+É fácil perceber que os valores de $\Delta f$ dependem do conjunto imagem da função objetivo. Atribui-lo diretamente à tabela $Q_a$ causaria um acoplamento entre uma característica do problema de otimização e a arquitetura, e isso não é desejável. Deste modo, os valores de $\Delta f$ são normalizados entre $[-1, 1]$. A função sigmoide foi escolhida para normalizar os valores de recompensa, e a equação final que define o valor da recompensa $R$ está descrita na \autoref{eq:recompensa}.
+
+\begin{equation}
+    Reward(\Delta f) = 1 - \frac{2}{1 + e^{\Delta f}}
+\label{eq:recompensa}
+\end{equation}
+
+Quando o agente decide utilizar a memória para escolher uma região para solicitar soluções, ele executa uma roleta sobre os valores da tabela $Q_a$. Esta estratégia foi adotada para dar possibilidade ao agente explorar regiões que a princípio não levaram a soluções de melhor qualidade. Vale lembrar que os algoritmos que a arquitetura D-Optimas são estocásticos, e a sua convergência para um valor ótimo não é garantida. Mesmo as regiões mudam ao longo do tempo, e uma região que antes levou a soluções de pior qualidade, pode no futuro levar o agente a encontrar melhores soluções.
+
+% o número de regiões e as regiões existentes no sistema mudam com o passar do tempo
+Como já descrito na seção anterior, o espaço de busca está em constante mudança, dada a dinâmica de fusão e fissão das regiões. A cada nova solução criada por um agente, potencialmente uma nova região pode surgir, ou duas regiões podem se unir, alterando assim a configuração do sistema. Entretanto, o mecanismo \textit{Q-learning} tal qual descrito na literatura é estático. Uma memória que tivesse todas as $r$ regiões possíveis, uma vez que o número de regiões é limitado por um parâmetro da simulação, frequentemente poderia levar o agente a solicitar soluções de uma região que não existe. Outrossim, o número de regiões escolhido pode ser arbitrariamente grande, o que faria a memória $Q_a$ do agente ser grande. 
+
+% a memória tem um tamanho limitado e é atualizada periodicamente
+Sendo assim, optou-se por limitar o tamanho da memória do agente à um tamanho $M$, que é dado como parâmetro no início da simulação. O agente também foi munido de um algoritmo para atualizar as regiões presentes na memória. Este algoritmo é executado sempre que um agente recebe uma mensagem do tipo \textbf{UpdateGlobalSummary}. Como já descrito, essa mensagem é enviada pelo \textbf{SimulationActor} a todos os atores da simulação sempre que alguma mudança acontece no sistema. O \autoref{algo:qTableUpdate} exibe o procedimento de atualização da memória dos agentes.
+
+\begin{algorithm}[H]
+\caption{Método de atualização da tabela de qualidade utilizada pela memória \textit{Q-learning}}
+\label{algo:qTableUpdate}
+\begin{algorithmic}[1]
+    \State \text{Recebe uma lista $R_w$ das regiões presentes no espaço de busca} 
+    \State{$R_{stay} \gets R_w \cap Q_a $}
+    \State{$R_{remove} \gets Q_a - R_{stay} $}
+    \State{$R_{add} \gets Q_a - R_w$}
+    \State{$Q_a \gets Q_a - R_{remove}$}
+    \State{$Q_a \gets Q_a \cup \{ \, (r, Reward(0)) \; \forall r \in R_{add} \,\} $}
+    \State{Ordene os pares $(id, R) \in Q_a$ descendente em $R$}
+    \State{Mantenha as $M$ primeiras entradas da tabela $Q_a$}
+\end{algorithmic}
+\end{algorithm}
+
+O algoritmo adota uma estratégia elitista na escolha das regiões que ficarão na memória. Ele recebe o conjunto de regiões $R_w$ que existe atualmente no espaço de busca. O primeiro passo do algoritmo calcular as regiões que ficam na memória, as que serão removidas e as que serão adicionadas ($R_{stay}$, $R_{remove}$ e $R_{add}$, respectivamente). O passo seguinte é remover da memória do agente $Q_a$ as regiões que não existem mais no mundo $R_{remove}$ (linha 5), e adicionar as regões que ainda não estão na memória (linha 6). As novas regiões são adicionadas com o valor de qualidade correspondente a uma recompensa nula. Por fim, a tabela $Q_a$ é ordenada de maneira descendente e as regiões com menor qualidade que excedem o tamanho $M$ da tabela são removidas. 
 
 \section{Adição de novos algoritmos populacionais}
 \label{sec:algoritmos}
 
 Um princípio fundamental na construção da arquitetura D-Optimas é de que a diversidade de estratégias de busca pode, não só levar a arquitetura a encontrar soluções de maior qualidade, quanto melhorar o desempenho geral em diferentes tipos de problema. A cada nova versão da arquitetura, alguns novos algoritmos foram adicionados, em especial na versão de \citeonline{denise2014}, que adicionou vários algoritmos construtores e de busca local. Entretanto, pouco esforço foi empreendido na adição de algoritmos evolutivos ou populacionais, técnica consolidada para solução de problemas complexos, dos quais a única premissa necessária é a de localidade fraca \cite{gaspar2012}.
 
-Neste sentido, fez-se um esforço no presente trabalho de trazer ao menos mais duas técnicas populacionais/evolutivas à arquitetura, de modo que pudessem ser conduzidos experimentos para avaliar o efeito da diversidade de estratégias de busca, algo que não foi testado em trabalhos passados. Os algoritmos inseridos foram o \textit{Differential Evolution} (\textbf{DE}) \cite{storn1997} e o \textit{Particle Swarm Optimization} (\textbf{PSO}) \cite{eberhart1995, eberhart1998}. O algoritmo DE foi escolhido principalmente pela sua simplicidade, uma vez que possui poucos parâmetros de configuração. Por sua vez, o PSO foi escolhido por ser um dos algoritmos de otimização mais citados na literatura, tendo sido aplicado com sucesso em diversos problemas de otimização contínua \cite{bonyadi2017}. 
+Neste sentido, fez-se um esforço no presente trabalho de trazer ao menos mais duas técnicas populacionais/evolutivas à arquitetura, de modo que experimentos pudessem ser conduzidos para avaliar o efeito da diversidade de estratégias de busca, algo que não foi testado em trabalhos passados. Os algoritmos inseridos foram o \textit{Differential Evolution} (\textbf{DE}) \cite{storn1997} e o \textit{Particle Swarm Optimization} (\textbf{PSO}) \cite{eberhart1995, eberhart1998}. O algoritmo DE foi escolhido principalmente pela sua simplicidade, uma vez que possui poucos parâmetros de configuração. Por sua vez, o PSO foi escolhido por ser um dos algoritmos de otimização mais citados na literatura, tendo sido aplicado com sucesso em diversos problemas de otimização contínua \cite{bonyadi2017}. 
 
 Ambos os algoritmos foram implementados somente para o problema de otimização irrestrita de função real, para o qual esses algoritmos foram inicialmente propostos. Entretanto, ambos foram implementados usando o arcabouço de generalização proposto por \citeonline{denise2014}, o que torna fácil a extensão deles para problemas de natureza combinatória, bastando implementar os modificadores adequados. Os parágrafos a seguir apresentam os pseudocódigos das estratégias de busca e como eles foram implementados e adaptados para a arquitetura D-Optimas, utilizando os mecanismos de generalização. 
 
 \begin{figure}[ht!]
     \centering
-    \caption{Diagrama das estruturas abstratas proposta por \citeonline{denise2014} e como elas foram  utilizadas na implementação dos algoritmos já existentes na arquitetura. As estruturas Problema, Solução e Analise de Solução são comuns a todas implementação de metaheurística. As siglas RMS e RMCS significam, respectivamente, as estruturas de Realiza Modificação de Solução e Realiza Modificação de Conjunto de Solução. São as principais estruturas utilizadas no presente trabalho para implementação dos algoritmos escolhidos. }
+    \caption{Diagrama das estruturas abstratas proposta por \citeonline{denise2014} e como elas foram  utilizadas na implementações dos algoritmos já existentes na arquitetura. As estruturas Problema, Solução e Analise de Solução são comuns a todas implementação de metaheurística. As siglas RMS e RMCS significam, respectivamente, as estruturas de Realiza Modificação de Solução e Realiza Modificação de Conjunto de Solução. Elas são as principais estruturas utilizadas no presente trabalho para implementação dos algoritmos escolhidos. }
     \label{fig:denise_abstract_structures}
     \includegraphics[scale=0.5]{imagens/denise-abstract-structures.png}
 \end{figure}
 
-Como já abordado no capítulo anterior \citeonline{denise2014} criou um conjunto de classes abstratas para implementar algoritmos de otimização que sejam independentes dos dados do problema, bem como da representação das soluções. A \autoref{fig:denise_abstract_structures} apresenta essas estruturas abstratas e suas relações com os algoritmos já implementados na arquitetura. Um exemplo é o \textit{Genetic Algorithm} (\textbf{GA}), que utiliza a estrutura de Modificador de Conjunto de Soluções (RMCS) para encapsular a avaliação da população, a seleção dos pais, o cruzamento e a seleção da nova população. 
+Como já abordado no capítulo anterior, \citeonline{denise2014} criou um conjunto de classes abstratas para implementar algoritmos de otimização que sejam independentes dos dados do problema, bem como da representação das soluções. A \autoref{fig:denise_abstract_structures} apresenta essas estruturas abstratas e suas relações com os algoritmos já implementados na arquitetura. Um exemplo é o \textit{Genetic Algorithm} (\textbf{GA}), que utiliza a estrutura de Modificador de Conjunto de Soluções (RMCS) para encapsular a avaliação da população, a seleção dos pais, o cruzamento e a seleção da nova população. 
 
-Portanto, para incluir um novo algoritmo utilizando essas ferramentas foi necessário estudá-las e identificar em cada algoritmo quais os pontos em comum que poderiam depender de um problema específico e encapsulá-los na estrutura apropriada. Deste modo, serão apresentados à seguir os pseudocódigos dos dois algoritmos selecionados, do \textbf{DE} e do \textbf{PSO}, a ideia central da metaheurística e quais trechos foram encapsulados em estruturas abstratas.
+Portanto, para incluir um novo algoritmo utilizando essas ferramentas foi necessário estudá-las e identificar em cada algoritmo quais os pontos em comum que poderiam depender de um problema específico e encapsulá-los na estrutura apropriada. Deste modo, serão apresentados à seguir os pseudocódigos dos dois algoritmos selecionados, do \textbf{DE} e do \textbf{PSO}, a ideia central das metaheurísticas e quais trechos foram encapsulados em estruturas abstratas.
 
-A primeira metaheurística abordada será o \textbf{DE}, cujo pseudocódigo é apresentado no \autoref{algo:de}. Essencialmente o algoritmo aplica uma regra simples de seleção e mutação em cada indivíduo da população, sucessivamente, até que uma condição de parada seja atingida. Na implementação original uma população inicial é gerada aleatoriamente. Esse passo foi substituído, evidentemente, pelo comportamento padrão dos agentes na arquitetura que é solicitar um conjunto de soluções às regiões (linha 1). A condição de parada (linha 2) segue o padrão das outras implementações na arquitetura D-Optimas, e é informada pelo usuário no arquivo de configuração da simulação. Há atualmente algumas condições de parada implementadas na arquitetura que estendem a classe abstrata \textbf{StopCondition}. As implementações possíveis são a parada por número máximo de iterações, número máximo de iterações sem melhora, valor da melhor avaliação de função objetivo, tempo máximo de execução ou uma combinação qualquer das condições anteriores. 
+A primeira metaheurística abordada será o \textbf{DE}, cujo pseudocódigo é apresentado no \autoref{algo:de}. Essencialmente o algoritmo aplica uma regra simples de seleção e mutação em cada indivíduo da população, sucessivamente, até que uma condição de parada seja atingida. Na implementação original, uma população inicial é gerada aleatoriamente. Esse passo foi substituído, evidentemente, pelo comportamento padrão dos agentes na arquitetura que é solicitar um conjunto de soluções às regiões (linha 2). A condição de parada (linha 3) segue o padrão das outras implementações na arquitetura D-Optimas, sendo informada pelo usuário no arquivo de configuração da simulação. Há atualmente algumas condições de parada implementadas na arquitetura que estendem a classe abstrata \textbf{StopCondition}. As implementações possíveis são a parada por número máximo de iterações, número máximo de iterações sem melhora, valor da melhor avaliação de função objetivo, tempo máximo de execução ou uma combinação qualquer das condições anteriores. 
 
-A classe \textbf{DE} é composta de dois modificadores, o primeiro responsável por sortear os indivíduos para o cruzamento, o que corresponde a linha 4 do pseudocódigo, e o segundo corresponde a regra de mutação. Como esse modificador recebe uma lista de soluções, que é a população atual, e retorna uma lista contendo três soluções, este modificador é do tipo \textbf{ModifiesSolutionCollection}. O componente recebeu o nome de \textbf{DERandSelection}. 
+A classe \textbf{DE} é composta de dois modificadores, o primeiro responsável por sortear os indivíduos para o cruzamento, o que corresponde a linha 5 do pseudocódigo, e o segundo corresponde a regra de mutação. Como esse modificador recebe uma lista de soluções, que é a população atual, e retorna uma lista contendo três soluções, este modificador é do tipo \textbf{ModifiesSolutionCollection}. O componente recebeu o nome de \textbf{DERandSelection}. 
 
 \begin{algorithm}[H]
 \caption{Evolução Diferencial}
@@ -177,11 +246,11 @@ A classe \textbf{DE} é composta de dois modificadores, o primeiro responsável 
     \State \text{Recebe uma população inicial $X_t$ de tamanho $n$ e dimensão $D$} 
     \While{Condição de parada não for atingida} 
         \For{$i \gets 1$ até $n$} 
-            \State{Sorteie $r_1, r_2, r_3 \in {1,\dots,n}$} 
+            \State{Sorteie $s_1, s_2, s_3 \in {1,\dots,n}$} 
             \State{Sorteie $i_{rand} \in {1, \dots, n}$}
             \For{$j \gets 1$ até $D$}
                 \If{$rand(0,1) \leq CR \lor i = i_{rand}$}
-                    \State{$u_{t,i,j} = x_{t,i,r_3} + F * (x_{t,i, r_1} - x_{t,i,r_2})$}
+                    \State{$u_{t,i,j} = x_{t,i,s_3} + F * (x_{t,i, s_1} - x_{t,i,s_2})$}
                 \Else
                     \State{$u_{t,i,j} = x_{t,i,j}$}
                 \EndIf
@@ -200,11 +269,13 @@ A classe \textbf{DE} é composta de dois modificadores, o primeiro responsável 
 \end{algorithmic}
 \end{algorithm}
 
-As linhas 6 à 12 do \textbf{DE} foram encapsuladas em o segundo modificador de conjunto de soluções, que recebe uma lista contendo quatro soluções e aplica a regra de mutação descrita no algoritmo. Esse modificador foi implementado na classe  \textbf{DEMutationMSC}. 
+As linhas 7 à 14 do \textbf{DE} foram encapsuladas em o segundo modificador de conjunto de soluções, que recebe uma lista contendo quatro soluções e aplica a regra de mutação descrita no algoritmo. Esse modificador foi implementado na classe  \textbf{DEMutationMSC}. 
 
-Há algumas variações para as regras de seleção e mutação do algoritmo \textbf{DE}, que podem ser expressas de uma maneira sintética, de acordo com \citeonline{gaspar2012}. A variação implementada foi \texttt{DE/rand/1/bin}. Entretanto, outras variações podem ser facilmente implementadas sem grandes modificações da classe \textbf{DE}, simplesmente provendo novos modificadores.
+Há algumas variações para as regras de seleção e mutação do algoritmo \textbf{DE}, que podem ser expressas de uma maneira sintética, de acordo com \citeonline{gaspar2012}. A variação implementada foi \texttt{DE/rand/1/bin}.
+%argumentar o porque dessa escolha
+Entretanto, outras variações podem ser facilmente implementadas sem grandes modificações da classe \textbf{DE}, simplesmente provendo novos modificadores.
 
-A implementação do \textbf{DE} apresenta muito menos desafios do que o algoritmo \textbf{PSO}, cujo pseudocódigo é apresentado no \autoref{algo:pso}. O primeiro problema é a manutenção de duas populações, um vetor de posições que são as soluções do problema de otimização, e uma segunda população que são os vetores de velocidades associados às posições. O comportamento básico do algoritmo é atualizar, a cada iteração, o vetor de velocidade de cada partícula e logo em seguida atualizar a posição até que uma condição de parada seja atingida. Novamente, foi utilizada a estrutura abstrata de \textbf{StopCondition}, cuja implementação concreta é informada no arquivo de configuração da simulação. Para isso, o algoritmo além de receber as soluções iniciais das regiões (linha 1), gera um conjunto de soluções do mesmo tamanho que o primeiro conjunto e inicializa todas aleatoriamente chamando o método \textit{generateInitialSolution()}, definido na classe abstrata \textbf{Solution}. Novamente, foi utilizada a condição de parada genérica \textbf{StopCondition}, cujo tipo concreto é informado no arquivo de configuração da simulação. 
+A implementação do \textbf{DE} apresenta muito menos desafios do que o algoritmo \textbf{PSO}, cujo pseudocódigo é apresentado no \autoref{algo:pso}. O primeiro problema é a manutenção de duas populações, um vetor de posições, que são as soluções do problema de otimização, e uma segunda população, que são os vetores de velocidades associados às posições. O comportamento básico do algoritmo é atualizar, a cada iteração, o vetor de velocidade de cada partícula e logo em seguida atualizar a posição até que uma condição de parada seja atingida. Novamente, foi utilizada a estrutura abstrata de \textbf{StopCondition}, cuja implementação concreta é informada no arquivo de configuração da simulação. Para isso, o algoritmo além de receber as soluções iniciais das regiões (linha 1), gera um conjunto de soluções do mesmo tamanho que o primeiro conjunto. Esse novo conjunto é inicializado aleatoriamente pelo método \textit{generateInitialSolution()}, definido na classe abstrata \textbf{Solution}. Novamente, foi utilizada a condição de parada genérica \textbf{StopCondition}, cujo tipo concreto é informado no arquivo de configuração da simulação. 
 
 \begin{algorithm}[H]
 \caption{Otimização por Enxame de Partículas}
@@ -236,9 +307,9 @@ A implementação do \textbf{DE} apresenta muito menos desafios do que o algorit
 
 O algoritmo mantém uma terceira lista de soluções que armazena a melhor posição de cada indivíduo do enxame ao longo da execução do algoritmo, que corresponde no pseudocódigo à variável $pb_i$. Além desta memória, ele também mantém melhor partícula ao longo da execução, que corresponde à variável $gb$. A cada iteração essas variáveis são atualizadas, e para fazer a comparação, utilizamos a classe abstrata  \textbf{SolutionAnalizer}, que fornece métodos para efetuar a comparação entre duas soluções. Essa classe deve ser estendida e o seu tipo concreto também é informado no arquivo de configuração. 
 
-Os passo de alteração dos vetores velocidade e posição foram implementados em dois modificadores de coleção diferentes. Para modificar as velocidades, é necessário passar um vetor de tamanho $2*n + 1$, contendo nas $n$ primeiras posições os vetores de velocidade, nas $n$ posições seguintes o vetor $pb$ e na última posição da lista a melhor solução até a t-ésima iteração $gb$. Esse modificador foi nomeado \textbf{PSOVelocityUpdateMSC} e corresponde a linha 14 do \autoref{algo:pso}. Por fim, o modificador \textbf{PSOPositionUpdateMSC} recebe uma lista de tamanho $2n$ contendo nas $n$ primeiras posições o vetor $X$ e nas $n$ posições seguintes o vetor V  atualiza a lista de posições, encapsulando a linha 15 do pseudocódigo.
+Os passos de alteração dos vetores velocidade e posição foram implementados utilizando dois modificadores de coleção diferentes. Para modificar as velocidades, é necessário passar um vetor de tamanho $2*n + 1$ contendo nas $n$ primeiras posições os vetores de velocidade, nas $n$ posições seguintes o vetor $pb$ e na última posição da lista a melhor solução até a t-ésima iteração $gb$. Esse modificador foi nomeado \textbf{PSOVelocityUpdateMSC} e corresponde a linha 14 do \autoref{algo:pso}. Por fim, o modificador \textbf{PSOPositionUpdateMSC} recebe uma lista de tamanho $2n$ contendo nas $n$ primeiras posições o vetor $X$ e nas $n$ posições seguintes o vetor V, que atualiza a lista de posições, encapsulando a linha 15 do pseudocódigo.
 
 \section{Considerações finais}
-O presente capitulo se dedicou a apresentar as alterações feitas na arquitetura D-Optimas, proposta inicialmente por \citeonline{pacheco}. Essas alterações tiveram o principal objetivo de melhorar aspectos teóricos e evoluir a arquitetura, por exemplo, conferindo resiliência à simulação, do ponto de vista de sistemas distribuídos e dando uma definição precisa para o comportamento das regiões. Foram adicionadas também mais estratégias de busca, para cumprir o propósito da D-Optimas, como um sistema multi-agente, onde há diversidade de estratégias.
+O presente capítulo se dedicou a apresentar as alterações feitas na arquitetura D-Optimas, proposta inicialmente por \citeonline{pacheco}. Essas alterações tiveram o principal objetivo de melhorar aspectos teóricos e evoluir a arquitetura, por exemplo, conferindo resiliência à simulação, do ponto de vista de sistemas distribuídos, e dando uma definição precisa para o comportamento das regiões. Foram adicionadas também mais estratégias de busca, para cumprir o propósito da D-Optimas, como um sistema multi-agente, no qual a diversidade de estratégias é um fator importante.
 
-O capitulo seguinte apresentará alguns experimentos preliminares para avaliar as mudanças que foram feitas até o momento, principalmente no que diz respeito ao desempenho computacional e a escalabilidade da arquitetura.
+O capítulo seguinte apresentará os experimentos realizados para avaliar as mudanças que foram feitas até o momento, principalmente no que diz respeito ao desempenho computacional e a escalabilidade da arquitetura. Em seguida, o \autoref{chap:exp_diversidade} apresenta a avaliação do efeito da diversidade na qualidade das soluções produzidas pela arquitetura. 

@@ -3,7 +3,7 @@
 % -----------------------------------------------------------------------------
 
 
-\chapter{Avaliação da escalabilidade e do efeito da memória \textit{Q-learning}}
+\chapter{Avaliação da escalabilidade}
 \label{chap:exp_preliminares}
 
 Apresentadas as correções e aprimoramentos feitos na arquitetura D-Optimas, é necessário avaliar os impactos no seu funcionamento e comportamento. Neste capítulo será apresentada uma  bateria de experimentos, com o objetivo de avaliar a escalabilidade da nova implementação baseada em \textit{akka-cluster}.
@@ -33,7 +33,7 @@ Foram escolhidos quatro tipos de mensagem para serem analisadas. A primeira esco
 Antes de apresentar e discutir os resultados, é necessário fazer uma observação acerca do tratamento dos dados. Entre as execuções, cada mensagem pode ter sido trocada um número diferente de vezes e algumas delas podem não ter sido recebidas. Isso faz com que a média das latências da mensagem do tipo \textbf{UpdateGlobalSummary} em uma execução tenha sido calculada com um número diferente de observações em cada uma das 14 repetições para cada um dos 4 fatores. Esse particularidade dos dados, somada à estocasticidade inerente à arquitetura, pode levar os dados a não se comportarem bem, ainda que essa amostragem esteja congruente com a definição do teorema do limite central. Dito isso, as premissas da ANOVA são verificadas para cada tipo de mensagem, e quando atendidas, o teste paramétrico é escolhido. Todos os testes estatísticos foram realizados com um nível de confiança de 95\%.
 
 
-\subsection{Resultados do experimento}
+\section{Resultados do experimento}
 \label{sec:resultado}
 
 \begin{figure}
@@ -156,7 +156,7 @@ Há um pequeno desvio na normalidade, o que permite executar uma análise param�
     \label{tab:solution_response}
 \end{table}
 
-\subsection{Síntese do resultado}
+\section{Síntese do resultado}
 \label{sec:sintese}
 
 % aumentar o tamanho do cluster sem aumentar a simulação fornece mais recursos, favorece o balanceamento de carga, e leva os atores a processarem mais rápido
@@ -174,6 +174,8 @@ Entre os quatro tipos de mensagem analisadas neste experimento é possível obse
 % esta avaliação é importante para verificar a eficiência do software, principalmente para oferecer a solução a um usuário final. De toda forma, este é um sistema de tempo discreto, uma latência baixa é desejável, mas não influência na qualidade das soluções. 
 Avaliar o desempenho da D-Optimas é importante para certificar a correta implementação como um sistema distribuído, bem como a eficiência do \textit{software}, principalmente para oferecê-lo como uma ferramenta de trabalho para um usuário final, um tomador de decisão num processo de otimização. De todo modo, este é um sistema de tempo discreto, todas as meta-heurísticas são algoritmos discretos, que não dependem de resposta em tempo real. É claro que uma latência baixa é desejável, mas ela de fato não influencia na qualidade das soluções, somente no tempo de espera por soluções de boa qualidade.
 
+
+\begin{comment}
 \section{Avaliação do efeito da memória na qualidade das soluções produzidas}
 % - O que esse experimento avaliou 
 Este segundo experimento avaliou o efeito da adição da memória \textit{Q-learning} na qualidade das soluções produzidas pela arquitetura D-Optimas. 
@@ -188,12 +190,19 @@ Foram coletados os 19 melhores valores da função objetivo encontrados ao final
 
 \begin{table}[]
     \centering
-    \begin{tabular}{cccc}
-         \textbf{Nº de agentes}&\textbf{Metaheurística}&\textbf{Parâmetro} & \textbf{Valor}  \\
-         6 & GRASP & alpha & 0.5 \\
-         6 & GA    & taxa mutação & 0.2  \\
-         X & X     & taxa de cruzamento & 0.5 \\
-         X & X     & tamanho da população & 30 \\
+    \begin{tabular}{ccc}
+         \textbf{Metaheurística}&\textbf{Parâmetro} & \textbf{Valor}  \\
+         \multirow{3}{*}{GRASP}     & iterações             & 500   \\
+                                    & iterações busca local & 100   \\
+                                    & alpha                 & 0.5   \\
+         \midrule
+         \multirow{2}{*}{ILS}       & iterações             & 500   \\
+                                    & distúrbio             & 7     \\
+         \midrule
+         \multirow{4}{*}{GA}        & iterações             & 500   \\
+                                    & tamanho da população  & 30    \\
+                                    & taxa mutação          & 0.2   \\
+                                    & taxa de cruzamento    & 0.5   \\
          
     \end{tabular}
     \caption{Configuração dos agentes para o experimento que avaliou o efeito da memória \textit{Q-learning}}
@@ -206,3 +215,5 @@ Foram coletados os 19 melhores valores da função objetivo encontrados ao final
 \subsection{Síntese do resultado}
 
 \section{Considerações finais}
+
+\end{comment}
