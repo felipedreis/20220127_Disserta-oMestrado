@@ -1,54 +1,34 @@
 \chapter{Conclusão}
 \label{chap:conclusao}
 
-Este projeto de dissertação apresentou  a arquitetura D-Optimas, um sistema multi-agentes distribuído para a solução de problemas de otimização. O \autoref{chap:introducao} apresentou elementos da literatura e problemas da vida prática que motivaram o desenvolvimento de um sistema dinâmico para a hibridização de metaheurísticas em larga escala. 
+Apresentados os resultados dos experimentos, o presente capítulo retoma os objetivos iniciais deste trabalho, bem como a metodologia proposta, e faz aqui um comentário critico a cerca do presente e futuro da arquitetura D-Optimas. Inicialmente, o \autoref{chap:introducao} apresentou os fenômenos naturais que servem como inspiração tanto para a construção de sistemas multi-agentes como para metaheurísticas, introduzindo os conceitos de diversidade e colaboração. Após isso, são apresentados os elementos da literatura e problemas da vida prática que motivaram o desenvolvimento de novas metaheurísticas, bem como as limitações que essas estratégias tem em um fornecer boas soluções em diferentes famílias de problemas. Este argumento é construído em torno do \textit{"No Free Lunch Theorem"} para otimização \cite{wolpert1997}. Deste modo, é possível motivar e justificar a construção de um MAS, capaz de hibridizar de maneira dinâmica diferentes  metaheurísticas, de modo que elas consigam colaborar e aprender características de um determinado problema. Dado um sistema como este, é razoável esperar que uma configuração com uma variedade de estratégias de busca produza bons resultados para um número maior de problemas, em comparação com configurações pouco diversas. 
 
-O \autoref{chap:revisao} apresenta algumas arquiteturas e \textit{frameworks} para a resolução de problemas de otimização baseado em agentes, que possuem alguma característica distribuída. A maioria dos trabalhos encontrados na literatura são baseados em JADE (\textit{Java Agent DEvelopment Framework}), que dá suporte a programação distribuída. Entretanto, nenhum desses trabalhos apresentam resultados da solução de problemas de larga escala em um \textit{cluster}. O histórico da arquitetura D-Optimas é também apresentado neste capítulo, desde a sua primeira implementação, porposta por \citeonline{saliba2010}, até a sua última versão proposta por \citeonline{pacheco}, tendo sido completamente remodelada sobre o \textit{toolkit akka}.
+Na sequência, o \autoref{chap:revisao} visita a literatura de sistemas multi-agentes e \textit{frameworks} voltados para otimização, apresentando em especial aquelas que  possuem alguma característica distribuída. A maioria dos trabalhos encontrados na literatura são baseados em JADE (\textit{Java Agent DEvelopment Framework}), que dá suporte a programação distribuída. Entretanto, nenhum desses trabalhos apresentam resultados da solução de problemas de larga escala em um \textit{cluster}. O histórico da arquitetura D-Optimas é também apresentado neste capítulo, desde a sua primeira implementação, porposta por \citeonline{saliba2010}, até a sua última versão proposta por \citeonline{pacheco}, tendo sido completamente remodelada sobre o \textit{toolkit akka}.
 
-Para permitir a execução da arquitetura em um número indeterminado de nós, algumas melhorias foram propostas no \autoref{chap:desenvolvimento}. O principal objetivo dessas melhorias eram prover um mecanismo de balanceamento de carga, transparência de localidade para as entidades da simulação e tolerância a falhas. Essas melhorias envolveram uma mudança na ontologia dos agentes, regiões e atores supervisores da simulação, bem como uma mudança nos protocolos de comunicação. Além disso, novas meta-heurísticas foram adicionadas e os algoritmos de particionamento e fusão das regiões foi aprimorado, de modo que ele não mais dependa de nenhum conhecimento prévio dos problemas.
+Para permitir a execução da arquitetura em um número indeterminado de nós, algumas melhorias foram propostas no \autoref{chap:desenvolvimento}. O principal objetivo dessas melhorias eram prover um mecanismo de balanceamento de carga, transparência de localidade para as entidades da simulação e tolerância a falhas. Essas melhorias envolveram uma mudança na ontologia dos agentes, regiões e atores supervisores da simulação, bem como uma mudança nos protocolos de comunicação. Além disso, um novo mecanismo de memória, novas meta-heurísticas foram adicionadas e os algoritmos de particionamento e fusão das regiões foi aprimorado, de modo que ele não mais dependa de nenhum conhecimento prévio dos problemas.
 
-Para avaliar os efeitos da nova organização dos atores na simulação o capítulo anterior propôs um experimento preliminar que comparou a média da latência de quatro tipos de mensagens na arquitetura, variando o número de nós no \textit{cluster}  de 3 à 6. A análise estatística permitiu dizer com 95\% de confiança que houve diferença nas latências sempre que dois ou mais nós eram adicionados à simulação. 
+Para avaliar os efeitos da nova organização dos atores na simulação o \autoref{chap:exp_preliminares} descreve o primeiro experimento  que comparou a média da latência de quatro tipos de mensagens na arquitetura, variando o número de nós no \textit{cluster}  de 3 à 6. A análise estatística permitiu dizer com 95\% de confiança que houve diferença nas latências sempre que dois ou mais nós eram adicionados à simulação. 
 
-\section{Atividades programadas e cronograma}
+Finalmente, o \autoref{chap:exp_diversidade} apresentou os experimentos realizados para testar a principal hipótese deste trabalho, apresentada no \autoref{chap:metodologia}. Este experimentou simulou a arquitetura com uma diversidade de estratégias de busca, para verificar se este fator contribui para a produção de soluções de melhor qualidade, em comparação a execuções com um único agente explorador do espaço de busca. Foi necessário, para isso, prover um conjunto inicial de \textit{baseline}, com as configurações mais simples da arquitetura. Esta configuração básica foi sendo estendida a cada seção do capítulo, adicionando agentes de busca local, segmentando o espaço de busca, adicionando agentes do mesmo tipo com diferentes configurações e, finalmente, agentes de diferentes tipos.   
 
-Para dar prosseguimento a esse projeto de pesquisa, as seguintes atividades são propostas. O \autoref{tab:crono} apresenta o cronograma de execução destas atividades.
+\section{Principais contribuições}
 
-\begin{enumerate}
-    \item Verificação do funcionamento das novas meta-heurísticas e do funcionamento das regiões;
-    \item Reintegração dos mecanismos de aprendizagem e memória dos agentes;
-    \item Inclusão de novos problemas na arquitetura, principalmente os de caráter combinatório;
-    \item Planejamento dos experimentos para avaliar a corretude do modelo;
-    \item Planejamento de experimentos para avaliar o desempenho da arquitetura em diferentes tipos de problema; 
-    \item Execução dos experimentos planejados;
-    \item Análise dos resultados obtidos;
-    \item Finalização da escrita do trabalho;
-    \item Defesa para a banca examinadora;
-\end{enumerate}
+Retomando o objetivo principal apresentado no início deste trabalho, a principal meta aqui posta era consolidar a arquitetura D-Optimas do ponto de vista de um sistema distribuído. Esperava-se aprimorar os sistema, dando a ele algum grau de tolerância a falhas, por meio de um mecanismo de balanceamento de carga e transparência de localidade. Este tipo de modificação daria à arquitetura a possibilidade de ser executada em um \textit{cluster} com vários nós, escalando horizontalmente. 
 
-\begin{quadro}
-\caption{\label{tab:crono}Cronograma com as atividades previstas para o trabalho, com prazos de Dezembro de 2020 à Abril de 2021.}
-\centering
-\begin{tabular}{|c|c|c|c|c|c|}
-    \hline
-     \textbf{Atividade} & \textbf{Dez} & \textbf{Jan} & \textbf{Fev} & \textbf{Mar} & \textbf{Abr}   \\
-     \hline
-     1 & X &   &   &   &\\
-     \hline
-     2 & X & X &   &   &\\
-     \hline
-     3 &   & X &   &   &\\
-     \hline
-     4 &   &   & X &   &\\
-     \hline
-     5 &   &   & X &   &\\
-     \hline
-     6 &   &   &   & X & \\
-     \hline
-     7 &   &   &   & X & \\
-     \hline
-     8 &   &   &   & X & X \\
-     \hline
-     9 &   &   &   &   & X\\
-     \hline
-\end{tabular}
-\end{quadro}
+Aberta a possibilidade de escalar o sistema horizontalmente, o próximo passo seria executar simulações com problemas mais complexos, com uma variedade de agentes e estratégias de busca. Deste modo seria possível observar a adaptação da arquitetura ao problema, com os agentes colaborando e, dessa forma, verificar, neste comportamento,  o surgimento de uma hibridização dinâmica das meta-heurísticas.
+
+
+
+Para atingir este objetivo geral, é necessário cumprir os seguintes objetivos específicos: 
+
+\begin{itemize}
+    \item Compreender a arquitetura D-Optimas, seus fundamentos teóricos e seus mecanismos de generalização de problemas
+    \item Estender arquitetura permitindo sua execução em um \textit{cluster} com um número arbitrário de nós
+    \item Aprimorar os algoritmos da arquitetura, em especial os que definem o comportamento das regiões, para que não dependam de um conhecimento prévio do problema 
+    \item Estender a D-Optimas, adicionando novas meta-heurísticas
+    \item Submetê-la a uma bateria de experimentos com diferentes problemas, a fim de obter resultados confiáveis
+    \item Submeter os dados a uma análise estatística adequada 
+\end{itemize}
+
+
+\section{Trabalhos futuros}
