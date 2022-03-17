@@ -6,6 +6,8 @@
 \chapter{Desenvolvimento}
 \label{chap:desenvolvimento}
 
+\epigraph{Maluqueiras - é o que não dá certo. Mas só é maluqueiras depois que se sabe que não acertou}{Riobaldo, em o \textit{Grande Sertão Veredas}}
+
 Algumas arquiteturas para resolução de problemas de otimização baseadas em agentes foram apresentadas no \autoref{chap:revisao}, em especial as que possuem alguma característica de paralelismo, seja em um único computador, utilizando \textit{multi-threading}, ou em um \textit{cluster}. Dentre essas se destaca a arquitetura D-Optimas, objeto de estudo do presente trabalho. 
 
 Nesta arquitetura, os agentes encapsulam metaheurísticas e interagem entre si trocando soluções através de um ambiente virtual, buscando aprender nesse ambiente a encontrar soluções de boa qualidade para qualquer problema de otimização. O ambiente virtual, ou mundo virtual, é composto de soluções que são abrigadas em conjuntos disjuntos, chamados de regiões. O objetivo é que os agentes interajam com as regiões, e não com as soluções diretamente, ''compreendendo'', de maneira genérica, partes do espaço de busca que sejam mais ou menos interessantes. Da mesma forma, espera-se que as regiões possam apresentar uma dinâmica, podendo se fundir ou se particionar, a se adaptem à geometria do espaço de busca de qualquer problema de otimização.   

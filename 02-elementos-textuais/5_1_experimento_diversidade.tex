@@ -81,12 +81,12 @@ Apresentada a configuração do experimento, a \autoref{fig:baseline} exibe as 2
         \toprule
         \multicolumn{2}{c}{\textbf{Instância}}        &    \textbf{p-valor}       &   \textbf{Rejeita H0?}\\
         \midrule
-        GRASP\_DE   &	GRASP\_GA	&	$3.706 \times 10^-16$   &   Sim \\
-        GRASP\_DE	&	GRASP\_ILS	&   $1.451 \times 10^-16$   &   Sim \\
-        GRASP\_DE	&	GRASP\_PSO  &   $0.005$                 &   Sim \\
-        GRASP\_GA	&	GRASP\_ILS  &   $0.828$                 &   Não \\
-        GRASP\_GA 	& 	GRASP\_PSO  &   $9.798 \times 10^-11$   &   Não \\
-        GRASP\_ILS	&	GRASP\_PSO  &   $3.783 \times 10^-11$   &   Não \\
+        GRASP\_DE   &	GRASP\_GA	&	$3.706 \times 10^{-16}$     &   Sim \\
+        GRASP\_DE	&	GRASP\_ILS	&   $1.451 \times 10^{-16}$     &   Sim \\
+        GRASP\_DE	&	GRASP\_PSO  &   $0.005$                     &   Sim \\
+        GRASP\_GA	&	GRASP\_ILS  &   $0.828$                     &   Não \\
+        GRASP\_GA 	& 	GRASP\_PSO  &   $9.798 \times 10^{-11}$     &   Não \\
+        GRASP\_ILS	&	GRASP\_PSO  &   $3.783 \times 10^{-11}$     &   Não \\
         \bottomrule
     \end{tabular}
     \label{tab:conover_baseline}
@@ -121,7 +121,7 @@ A mesma constatação se repete quando comparado o \textit{baseline} do algoritm
 
 \begin{figure}
     \centering
-    \caption{Comparação de 20 valores de função objetivo do baseline GA com a combinação do ILS e GA. O teste de normalidade rejeita a hipótese nula (p-valor $$), e o teste dos postos falha em rejeitar a hipótese nula de que as amostras tem medianas iguais (p-valor de $0.233966$)}
+    \caption{Comparação de 20 valores de função objetivo do baseline GA com a combinação do ILS e GA. O teste de normalidade rejeita a hipótese nula (p-valor $0.000032$), e o teste dos postos falha em rejeitar a hipótese nula de que as amostras tem medianas iguais (p-valor de $0.233966$) }
     \includesvg[scale=0.8]{./imagens/baseline_GA_ILS_GA.svg}
     \label{fig:baselineGA_ILS_GA}
 \end{figure}
@@ -208,7 +208,27 @@ Esta seção apresenta os resultados para duas variações do conceito de divers
     \label{tab:expDiversidade}
 \end{table}
 
-A \autoref{fig:A01boxplot} exibe o resultado para a configuração na qual não há diversidade de configurações. Não tendo sido possível verificar a premissa de normalidade da ANOVA, os resultados foram submetidos ao teste de Kruskal-Wallis que produziu o p-valor de $0.048590$, levando à rejeição da hipótese nula. Há uma diferença visual entre a instância limitada a 10 regiões e as demais instâncias, o que também pode ser verificado pelo teste de Conover que produziu o p-valor de $0.004907$. 
+A \autoref{fig:A01boxplot} exibe o resultado para a configuração na qual não há diversidade de configurações. Não tendo sido possível verificar a premissa de normalidade da ANOVA, os resultados foram submetidos ao teste de Kruskal-Wallis que produziu o p-valor de $0.048590$, levando à rejeição da hipótese nula. Há uma diferença visual entre a instância limitada a 10 regiões e as demais instâncias, o que também pode ser verificado pelo teste de Conover que produziu o p-valor de $0.004907$, de acordo com a \autoref{tab:conover_div}. 
+
+\begin{table}
+    \caption{Comparações par-a-par (Teste de Conover) da média da função objetivo para o experimento GRASP\_2ILS\_4GA}
+	\centering
+    \begin{tabular}{cccc}
+        \toprule
+        \multicolumn{2}{c}{\textbf{Instância}}        &    \textbf{p-valor}       &   \textbf{Rejeita H0?}\\
+        \midrule
+        GRASP\_2ILS\_4GA\_1R           & GRASP\_2ILS\_4GA\_5R     & 0.125922      & Não\\
+        GRASP\_2ILS\_4GA\_1R           & GRASP\_2ILS\_4GA\_10R    & 0.004907      & Sim\\
+        GRASP\_2ILS\_4GA\_1R           & GRASP\_2ILS\_4GA\_20R    & 0.163585      & Não\\
+        GRASP\_2ILS\_4GA\_5R           & GRASP\_2ILS\_4GA\_1R     & 0.125921      & Não\\
+        GRASP\_2ILS\_4GA\_5R           & GRASP\_2ILS\_4GA\_10R    & 0.180877      & Não\\
+        GRASP\_2ILS\_4GA\_5R           & GRASP\_2ILS\_4GA\_20R    & 0.888501      & Não\\
+        GRASP\_2ILS\_4GA\_10R          & GRASP\_2ILS\_4GA\_20R    & 0.140067      & Não\\
+        \bottomrule
+    \end{tabular}
+    \label{tab:conover_div}
+\end{table}
+
 
 \begin{figure}
     \centering
@@ -277,7 +297,26 @@ Os resultados obtidos para 1, 5, 10 e 20 regiões são exibidos na \autoref{fig:
     \fonte{O próprio autor}
 \end{figure}
 
-Uma vez que o número de  regiões não influencia no resultado final, as amostras correspondente a 1 região dos experimentos GRASP\_ILS\_GA, GRASP\_ILS\_DE e GRASP\_ILS\_PSO foram comparadas com o resultado apresentado nesta seção. A comparação está disposta na \autoref{fig:baselineA03boxplot}. É possível perceber uma diferença entre a primeira e a segunda e a quarta amostra pelo princípio da sobreposição de caixas. Esse resultado é confirmado pelo teste de Kruskal-Wallis que produz o p-valor de $0.000000$. O resultado aqui que mais interessa é a comparação entre o presente experimento e o  GRASP\_ILS\_DE, pois foi a configuração que obteve o melhor resultado em relação ao \textit{baseline}. O teste de Conover rejeita a hipótese nula de que os resultados são iguais com p-valor de $2.024374 \times 10^{-17}$. O presente experimento (GRASP\_ILS\_2GA\_DE\_PSO\_10) obteve um resultado médio de $959.503136 \pm 0.608456$ enquanto a amostra de controle (GRASP\_ILS\_DE\_10R) obteve o resultado médio de $-959.640665 \pm 0.000002$. 
+Uma vez que o número de  regiões não influencia no resultado final, as amostras correspondente a 1 região dos experimentos GRASP\_ILS\_GA, GRASP\_ILS\_DE e GRASP\_ILS\_PSO foram comparadas com o resultado apresentado nesta seção. A comparação está disposta na \autoref{fig:baselineA03boxplot}. É possível perceber uma diferença entre a primeira e a segunda e a quarta amostra pelo princípio da sobreposição de caixas. Esse resultado é confirmado pelo teste de Kruskal-Wallis que produz o p-valor de $0.000000$. O resultado aqui que mais interessa é a comparação entre o presente experimento e o  GRASP\_ILS\_DE, pois foi a configuração que obteve o melhor resultado em relação ao \textit{baseline}. O teste de Conover rejeita a hipótese nula de que os resultados são iguais com p-valor de $2.024374 \times 10^{-17}$ (vide \autoref{tab:conover_div2}). O presente experimento (GRASP\_ILS\_2GA\_DE\_PSO\_10) obteve um resultado médio de $959.503136 \pm 0.608456$ enquanto a amostra de controle (GRASP\_ILS\_DE\_10R) obteve o resultado médio de $-959.640665 \pm 0.000002$. 
+
+\begin{table}
+    \caption{Comparações par-a-par (Teste de Conover) da média dos valores obtidos da função objetivo para os experimento GRASP\_ILS\_GA, GRASP\_ILS\_DE, GRASP\_ILS\_PSO e GRASP\_2ILS\_2GA\_DE\_PSO }
+	\centering
+    \begin{tabular}{cccc}
+        \toprule
+        \multicolumn{2}{c}{\textbf{Instância}}        &    \textbf{p-valor}       &   \textbf{Rejeita H0?}\\
+        \midrule
+        GRASP\_ILS\_GA         & GRASP\_ILS\_DE                 & $1.512\times 10^{-18}$    & Sim \\
+        GRASP\_ILS\_GA         & GRASP\_ILS\_PSO                & $1.488\times 10^{-09}$    & Sim \\
+        GRASP\_ILS\_GA         & GRASP\_2ILS\_2GA\_DE\_PSO      & $2.597\times 10^{-11}$    & Sim \\
+        GRASP\_ILS\_DE         & GRASP\_ILS\_PSO                & $9.287\times 10^{-06}$    & Sim \\
+        GRASP\_ILS\_DE         & GRASP\_2ILS\_2GA\_DE\_PSO      & $0.0002$                  & Sim \\
+        GRASP\_ILS\_PSO        & GRASP\_2ILS\_2GA\_DE\_PSO      & $0.3569$                  & Não \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:conover_div2}
+\end{table}
+
 
 O resultado portanto reforça a desconfiança de que a diversidade de configurações poderia produzir uma melhora expressiva no resultado para este problema, ou mesmo se equiparar ao melhor resultado encontrado pela configuração de \textit{baseline}.   
 
@@ -304,4 +343,4 @@ Colocados estes resultados em perspectiva, é necessário levantar algumas ressa
 
 Dadas as condições em que este experimento foi executado e os resultados obtidos, a principal contribuição deste trabalho é prover um procedimento experimental que pode ser aplicado a outros problemas, ou à famílias de problemas. Este trabalho também revelou indícios a dificuldade e a adaptação dos agentes aos problemas de otimização são fatores que precisam ser controlados. Como por exemplo, ficou claro pelos experimentos que o algoritmo DE é bem adaptado para este tipo de problema contínuo, a de modo que convergência da arquitetura se dá de forma muito rápida, e qualquer outro agente acaba gerando ruido no resultado final. Olhando para o experimento em que há variedade de configuração de agentes, parece ser necessário existir um mecanismo de adaptação entre os agentes, de modo que os agentes que geram soluções piores, e pioram o resultado global, sofram uma pressão seletiva. Isso seria útil, pois evitaria uma calibragem inicial dos parâmetros dos agentes. 
 
-Por fim, de modo geral, as regiões não demonstraram ser um fator relevante na maioria dos resultados apresentados. As regiões são o meio pelo qual que os agentes trocam informações e compreendem o espaço de busca. Esperava-se que a dinâmica do espaço de busca agrupasse as soluções semelhantes, e o agente aprende-se a explorar as regiões mais promissoras. Isso se daria por meio do mecanismo de memória utilizado, baseado no algoritmo \textit{Q-learning}. Entretanto, o número de regiões no sistema não alcança um ponto de equilíbrio (vide \autoref{app:numeroMedioRegioes}) e a única exceção a esta observação foi o experimento descrito na \autoref{sec:aumentandoAgentes}, onde aumentar o número de regiões parece fazer os agentes aprenderem a produzir soluções de melhor qualidade. Contudo, as métricas escolhidas para agrupar as 
+Por fim, de modo geral, as regiões não demonstraram ser um fator relevante na maioria dos resultados apresentados. As regiões são o meio pelo qual que os agentes trocam informações e compreendem o espaço de busca. Esperava-se que a dinâmica do espaço de busca agrupasse as soluções semelhantes, e o agente aprende-se a explorar as regiões mais promissoras. Isso se daria por meio do mecanismo de memória utilizado, baseado no algoritmo \textit{Q-learning}. Entretanto, o número de regiões no sistema não alcança um ponto de equilíbrio (vide \autoref{app:numeroMedioRegioes}) e a única exceção a esta observação foi o experimento descrito na \autoref{sec:aumentandoAgentes}, onde aumentar o número de regiões parece fazer os agentes aprenderem a produzir soluções de melhor qualidade. 
