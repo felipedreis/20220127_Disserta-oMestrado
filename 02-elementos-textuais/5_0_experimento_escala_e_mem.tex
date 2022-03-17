@@ -22,11 +22,36 @@ Além destas configurações, ficou estabelecido o número limite de 100 regiõe
 O ambiente computacional utilizado foi o \textit{cluster} do Laboratório de Sistemas Inteligentes (LSI) do CEFET, composto de seis máquinas com processador Intel i7, 32GB de RAM e 2TB de HD cada. O sistema operacional utilizado foi o CentOS 6, e o SLURM como escalonador
 de tarefas. A versão do JDK (\textit{Java Development Kit}) utilizada foi a 12.0.1.
 
-\begin{quadro}
+\begin{table}
 \caption{\label{tab:expS}Parâmetros das meta-heurísticas}
 \centering
-\includegraphics[scale=0.8]{imagens/d-optimas-exp-config.png}
-\end{quadro}
+
+\begin{tabular}{lllc}
+    \toprule
+    \textbf{Nº de agentes}  & \textbf{Metaheurística}   & \textbf{Parâmetro}        & \textbf{Valor} \\
+    \midrule
+    \multirow{2}{*}{6}      & \multirow{2}{*}{GRASP}    & iterações                 & 100\\
+                            &                           & iterações busca local     & 100\\
+                            &                           & alpha                     & 0.5\\
+    \midrule
+    \multirow{2}{*}{3}      & \multirow{2}{*}{ILS}      & iterações                 & 500\\
+                            &                           & nível de distúrbio        & 10\\
+    \midrule
+    \multirow{2}{*}{3}      & \multirow{2}{*}{ILS}      & iterações                 & 500\\
+                            &                           & nível de distúrbio        & 7\\
+    \midrule
+    \multirow{4}{*}{3}      & \multirow{4}{*}{GA}       & iterações                 & 300\\
+                            &                           & tamanho da população      & 20\\
+                            &                           & taxa de mutação           & 0.2\\
+                            &                           & taxa de cruzamento        & 0.7\\
+    \midrule
+    \multirow{4}{*}{3}      & \multirow{4}{*}{GA}       & iterações                 & 500\\
+                            &                           & tamanho da população      & 30\\
+                            &                           & taxa de mutação           & 0.1\\
+                            &                           & taxa de cruzamento        & 0.8\\
+    \bottomrule
+\end{tabular}
+\end{table}
 
 Foram escolhidos quatro tipos de mensagem para serem analisadas. A primeira escolhida foi \textbf{UpdateGlobalSummary} que é frequentemente enviada pelo líder da simulação a todas as regiões e agentes sempre que alguma mudança acontece no sistema. A segunda mensagem, do tipo \textbf{UpdateRegionSummary}, é enviada por uma região sempre que recebe uma nova solução, ou uma fissão ou fusão acontece. A terceira mensagem analisada, do tipo \textbf{RegionSplit}, é enviada pelas regiões ao líder da simulação sempre que uma região se particiona, e por fim, a quarta mensagem mensagem, do tipo \textbf{SolutionResponse}, é enviada aos agentes pelas regiões em resposta a uma solicitação de soluções. Neste subconjunto de mensagens  estão presentes as principais e mais frequentes interações entre os agentes, regiões e o líder. Os dados extraídos foram tratados, removendo eventuais anomalias (latências negativas, por exemplo) e a média das latências para cada execução, para cada tipo de mensagem, e foram computadas a média das latências para cada execução e para cada tipo de mensagem. 
 
