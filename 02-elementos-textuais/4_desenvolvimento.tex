@@ -6,7 +6,7 @@
 \chapter{Desenvolvimento}
 \label{chap:desenvolvimento}
 
-\epigraph{Maluqueiras - é o que não dá certo. Mas só é maluqueiras depois que se sabe que não acertou}{Riobaldo, em o \textit{Grande Sertão Veredas}}
+\epigraph{Maluqueiras - é o que não dá certo. Mas só é maluqueiras depois que se sabe que não acertou}{Riobaldo, em "Grande Sertão: Veredas"}
 
 Algumas arquiteturas para resolução de problemas de otimização baseadas em agentes foram apresentadas no \autoref{chap:revisao}, em especial as que possuem alguma característica de paralelismo, seja em um único computador, utilizando \textit{multi-threading}, ou em um \textit{cluster}. Dentre essas se destaca a arquitetura D-Optimas, objeto de estudo do presente trabalho. 
 
@@ -191,7 +191,7 @@ No contexto da arquitetura D-Optimas, a única ação possível ao agente é sol
 \label{eq:recompensa}
 \end{equation}
 
-Quando o agente decide utilizar a memória para escolher uma região para solicitar soluções, ele executa uma roleta sobre os valores da tabela $Q_a$. Esta estratégia foi adotada para dar possibilidade ao agente explorar regiões que a princípio não levaram a soluções de melhor qualidade. Vale lembrar que os algoritmos que a arquitetura D-Optimas são estocásticos, e a sua convergência para um valor ótimo não é garantida. Mesmo as regiões mudam ao longo do tempo, e uma região que antes levou a soluções de pior qualidade, pode no futuro levar o agente a encontrar melhores soluções.
+Quando o agente decide utilizar a memória para escolher uma região para solicitar soluções, ele executa uma roleta sobre os valores da tabela $Q_a$. Esta estratégia foi adotada para dar possibilidade ao agente explorar regiões que a princípio não levaram a soluções de melhor qualidade. É importante ressaltar que os algoritmos de otimização implementados na arquitetura D-Optimas são estocásticos, e a sua convergência para um valor ótimo não é garantida. Mesmo as regiões mudam ao longo do tempo, e uma região que antes levou a soluções de pior qualidade, pode no futuro levar o agente a encontrar melhores soluções.
 
 % o número de regiões e as regiões existentes no sistema mudam com o passar do tempo
 Como já descrito na seção anterior, o espaço de busca está em constante mudança, dada a dinâmica de fusão e fissão das regiões. A cada nova solução criada por um agente, potencialmente uma nova região pode surgir, ou duas regiões podem se unir, alterando assim a configuração do sistema. Entretanto, o mecanismo \textit{Q-learning} tal qual descrito na literatura é estático. Uma memória que tivesse todas as $r$ regiões possíveis, uma vez que o número de regiões é limitado por um parâmetro da simulação, frequentemente poderia levar o agente a solicitar soluções de uma região que não existe. Outrossim, o número de regiões escolhido pode ser arbitrariamente grande, o que faria a memória $Q_a$ do agente ser grande. 
@@ -214,7 +214,7 @@ Sendo assim, optou-se por limitar o tamanho da memória do agente à um tamanho 
 \end{algorithmic}
 \end{algorithm}
 
-O algoritmo adota uma estratégia elitista na escolha das regiões que ficarão na memória. Ele recebe o conjunto de regiões $R_w$ que existe atualmente no espaço de busca. O primeiro passo do algoritmo calcular as regiões que ficam na memória, as que serão removidas e as que serão adicionadas ($R_{stay}$, $R_{remove}$ e $R_{add}$, respectivamente). O passo seguinte é remover da memória do agente $Q_a$ as regiões que não existem mais no mundo $R_{remove}$ (linha 5), e adicionar as regões que ainda não estão na memória (linha 6). As novas regiões são adicionadas com o valor de qualidade correspondente a uma recompensa nula. Por fim, a tabela $Q_a$ é ordenada de maneira descendente e as regiões com menor qualidade que excedem o tamanho $M$ da tabela são removidas. 
+O algoritmo adota uma estratégia elitista na escolha das regiões que ficarão na memória. Ele recebe o conjunto de regiões $R_w$ que existe atualmente no espaço de busca. O primeiro passo do algoritmo é calcular as regiões que ficam na memória, as que serão removidas e as que serão adicionadas ($R_{stay}$, $R_{remove}$ e $R_{add}$, respectivamente). O passo seguinte é remover da memória do agente $Q_a$ as regiões que não existem mais no mundo $R_{remove}$ (linha 5), e adicionar as regões que ainda não estão na memória (linha 6). As novas regiões são adicionadas com o valor de qualidade correspondente a uma recompensa nula. Por fim, a tabela $Q_a$ é ordenada de maneira descendente e as regiões com menor qualidade que excedem o tamanho $M$ da tabela são removidas. 
 
 \section{Adição de novos algoritmos populacionais}
 \label{sec:algoritmos}

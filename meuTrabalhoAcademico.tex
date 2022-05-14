@@ -98,6 +98,7 @@ abnt-thesis-year=final]{abntex2cite}	% Formata as citações bibliográficas con
 % \usepackage{nomencl} 			% Usado para produzir lista de símbolos
 \usepackage{makeidx}			% Usado para produzir índice remissivo (glossário)
 \usepackage{epigraph}
+\usepackage{subfigure}
 
 \usepackage{tabularx}
 \usepackage{longtable}
@@ -179,7 +180,7 @@ abnt-thesis-year=final]{abntex2cite}	% Formata as citações bibliográficas con
 %   Gera e imprime alguns elementos pré-textuais: capa, folha de rosto e folha de aprovação
 
 \pretextual
- \imprimircapa 											% Comando para imprimir Capa
+\imprimircapa 											% Comando para imprimir Capa
  \imprimirfolhaderosto{} 								% Comando para imprimir Folha de rosto
 %   Insere os demais elementos pré-textuais
 \include{./01-elementos-pre-textuais/agradecimentos}
@@ -209,6 +210,7 @@ abnt-thesis-year=final]{abntex2cite}	% Formata as citações bibliográficas con
 \postextual
  \include{./03-elementos-pos-textuais/referencias}		% Referências
 \include{./03-elementos-pos-textuais/apendice}
+\include{./03-elementos-pos-textuais/indiceRemissivo}
 % -----------------------------------------------------------------------------
 %   Os elementos pré-textuais, textuais e pós-textuais deverão ajustados conforme o
 %   tipo de trabalho acadêmico: Tese de Doutorado, Dissertação de Mestrado ou
