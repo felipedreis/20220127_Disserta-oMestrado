@@ -1,9 +1,11 @@
 \chapter{Revisão bibliográfica}
 \label{chap:revisao}
 
+\epigraph{Conto ao senhor é o que eu sei e o senhor não sabe; mas principal quero contar é o que eu não sei se sei; e que pode ser que o senhor saiba.}{Riobaldo, em "Grande Sertão: Veredas"}
+
 \section{Arquiteturas Multi-Agentes para Otimização}
-\citeonline{silva2018} faz uma detalhada revisão da literatura apresentando 25 arquiteturas de software voltadas para otimização. 
-A autora apresenta os trabalhos em duas categorias, a saber: \textit{frameworks} para otimização que utilizam metaheurísticas e \textit{frameworks} multi-agentes que utilizam metaheurísticas. Entre essas duas principais categorias, são analisadas características gerais e avançadas, características multi-agentes, e os recursos ao processo de otimização. 
+\citeonline{silva2018} fazem uma detalhada revisão da literatura apresentando 25 arquiteturas de software voltadas para otimização. 
+Os autores apresentam os trabalhos em duas categorias, a saber: \textit{frameworks} para otimização que utilizam metaheurísticas e \textit{frameworks} multi-agentes que utilizam metaheurísticas. Entre essas duas principais categorias, são analisadas características gerais e avançadas, características multi-agentes, e os recursos ao processo de otimização. 
 
 O que se propõe neste trabalho é desenvolver uma arquitetura de software multi-agente, distribuída, baseada no modelo de atores, e escalável. Neste sentido, há que se comparar este trabalho com trabalhos semelhantes apresentados na literatura. Dos 25 trabalhos apresentados por \citeonline{silva2018}, foram selecionados aqueles que são categorizados como um sistema distribuído em suas características avançadas, e que são sistemas multi-agentes.
 
@@ -39,7 +41,7 @@ O \textit{framework} AMAM e a arquitetura BIMASCO tiveram a mesma origem, como r
 \section{Histórico da Arquitetura D-Optimas}
 \label{sec:histBimasco}
 
-Um projeto mais recente,no qual o presente trabalho se baseia, é a arquitetura D-Optimas. Essa arquitetura foi apresentada por \citeonline{pacheco}, mas é fundada num projeto mais antigo, chamado BIMASCO, que possui um longo histórico e uma bibliografia densa. Esta secção é dedicada a fazer uma pequena revisão do projeto, desde sua origem no trabalho de \citeonline{saliba2010}, passando pelos trabalhos de \citeonline{denise2014} e \citeonline{marcus2015}, até a sua transformação em uma arquitetura distribuída para solução de problemas de otimização. Serão apresentados os principais conceitos que compõe a arquitetura, os resultados obtidos em cada uma de suas versões, e as suas eventuais falhas conceituais.
+Um projeto mais recente,no qual o presente trabalho se baseia, é a arquitetura D-Optimas. Essa arquitetura foi apresentada por \citeonline{pacheco}, mas é fundada num projeto mais antigo, chamado BIMASCO, que possui um longo histórico e uma bibliografia densa. Esta seção é dedicada a fazer uma pequena revisão do projeto, desde sua origem no trabalho de \citeonline{saliba2010}, passando pelos trabalhos de \citeonline{denise2014} e \citeonline{marcus2015}, até a sua transformação em uma arquitetura distribuída para solução de problemas de otimização. Serão apresentados os principais conceitos que compõe a arquitetura, os resultados obtidos em cada uma de suas versões, e as suas eventuais falhas conceituais.
 
 A arquitetura BIMASCO (\textit{Bio Inspired Multi Agent System for Combinatorial Optimization} foi primeiramente apresentada por \citeonline{saliba2010} como uma completa reconcepção da arquitetura AMAM, segundo o próprio autor. Foi desenvolvida no Laboratório de Sistemas Inteligentes do CEFET-MG e a justificativa para a sua criação foi baseada no fato de que a AMAM, como já apresentado na seção anterior, feria alguns princípios da modelagem de sistemas multi-agentes, principalmente o princípio da autonomia, prevendo em seu modelo um agente controlador que determinava o comportamento dos demais agentes. O objetivo do trabalho àquele momento foi implementar um sistema multi-agente que funcionasse por troca de mensagens assíncrona, de modo que os agentes pudessem interagir entre si e com o espaço de busca, tomando decisões de maneira autônoma, funcionando como um sistema auto-organizável \cite{saliba2010}. 
 

@@ -1,6 +1,6 @@
 \chapter{Avaliação do efeito da diversidade na qualidade das soluções produzidas}
 \label{chap:exp_diversidade}
-\epigraph{Rir, antes da hora, engasga}{Riobaldo, em o \textit{Grande Sertão Veredas}}
+\epigraph{Rir, antes da hora, engasga}{Riobaldo, em "Grande Sertão: Veredas"}
 
 Uma vez avaliada a capacidade de escalar horizontalmente, o atual capítulo descreverá os experimentos realizados para avaliar o efeito da diversidade de agentes na qualidade das soluções produzidas pela arquitetura.
 
@@ -14,7 +14,7 @@ Todos os experimentos foram executados sobre a função \textit{EggHolder}, que 
   f(x, y) = -(y + 47) * \sin{\sqrt{\big| y + \frac{x}{2.0} + 47 \big| }} - x * \sin{\sqrt{\big|x - (y + 47)\big|}} 
 \end{equation*}
 
-Este problema é interessante para a arquitetura, pois possui uma grande quantidade de de mínimos locais. A \autoref{fig:eggHolder} a superfície da função objetivo. O espaço de busca foi restringido no intervalo de $[-512,+512]$ em ambas as coordenadas. O mínimo global está localizado na posição $f(512, 404.2319) = -959.6407$.   
+Este problema é interessante para a arquitetura, pois possui uma grande quantidade de de mínimos locais. A \autoref{fig:eggHolder} exibe a superfície da função objetivo. O espaço de busca foi restringido no intervalo de $[-512,+512]$ em ambas as coordenadas. O mínimo global está localizado na posição $f(512, 404.2319) = -959.6407$.   
 
 \begin{figure}
     \centering
@@ -24,11 +24,33 @@ Este problema é interessante para a arquitetura, pois possui uma grande quantid
     \fonte{O próprio autor}
 \end{figure}
 
-Dito isto, o presente capítulo se divide em cinco seções. A primeira seção trata dos experimentos de \textit{baseline}, que servirão de base de comparação para os experimentos seguintes. Esta etapa do procedimento avaliou o resultado de cada uma das meta-heurísticas presentes na arquitetura D-Optimas na presença de um agente gerador de soluções e uma única região. Esta configuração é a mais simples que pode ser executada, uma vez que o agente gerador é necessário para inicializar o agente explorador do espaço de busca. A \autoref{sec:popBuscaLocal} trata da hibridização de um algoritmo populacional e uma estratégia de busca local. Para que os dois agentes que passam a compor a simulação possam colaborar na exploração do espaço de busca, é necessário \autoref{sec:aumentandoRegioes} é avaliado o impacto do aumento do número mínimo de regiões na qualidade das soluções finais encontradas pela arquitetura.
+Dito isto, o presente capítulo se divide em cinco seções. A primeira seção trata dos experimentos de \textit{baseline}, que servirão de base de comparação para os experimentos seguintes. Esta etapa do procedimento avaliou o resultado de cada uma das meta-heurísticas presentes na arquitetura D-Optimas na presença de um agente gerador de soluções e uma única região. Esta configuração é a mais simples que pode ser executada, uma vez que o agente gerador é necessário para inicializar o agente explorador do espaço de busca. A \autoref{sec:popBuscaLocal} trata da hibridização de um algoritmo populacional e uma estratégia de busca local. Para que os dois agentes que passam a compor a simulação possam colaborar na exploração do espaço de busca, na \autoref{sec:aumentandoRegioes} é avaliado o impacto do aumento do número mínimo de regiões na qualidade das soluções finais encontradas pela arquitetura.
 
 Uma vez apreciado o comportamento de um agente populacional acompanhado de uma busca local, a \autoref{sec:aumentandoAgentes} avalia o efeito do aumento do número de agentes no resultado final produzido pela arquitetura D-Optimas. 
 
 Por fim, a \autoref{sec:diversidade} avalia o efeito da composição de várias heurísticas populacionais, juntamente com a busca local, comparando os resultados obtidos nesta etapa com todas as configurações anteriores. A síntese do resultado e as considerações finais deste capítulo estão dispostas na \autoref{sec:sinteseDiversidade}.
+
+\section{Experimentos preparatórios}
+Foi realizado um experimento preparatório para avaliar o efeito da mudança de parâmetros na arquitetura, bem como a duração apropriada para o experimento. Esse experimento avaliou a arquitetura com um agente do tipo ILS, um agente do tipo GA e um agente gerador de soluções. O parâmetro variado foi a taxa de mutação do agente GA, que variou entre os níveis $0.05$, $0.1$, $0.15$, $0.20$ e $0.25$. Este experimento foi repetido 14 vezes para cada um dos níveis.
+
+Os resultados obtidos do experimento são exibidos na \autoref{fig:prep}
+
+Kruskal-Wallis p-valor 0.208669
+
+Homocedasticidade 0.003448
+
+Normalidade 0.000002
+
+Analise do poder do teste 15
+
+
+\begin{figure}
+    \centering
+    \includesvg{./imagens/preparatorio1.svg}
+    \caption{Valor da função objetivo para}
+    \label{fig:my_label}
+\end{figure}
+
 
 \section{Experimentos de \textit{baseline}}
 \label{sec:baseline}
@@ -339,8 +361,8 @@ Apesar da variedade de agentes com a mesma configuração não produzir nenhum e
 
 Finalmente, o último experimento avaliou a hibridização de diferentes tipos de agentes populacionais. Este último experimento também não obteve performance superior quando comparado ao melhor resultado do conjunto de \textit{baseline}, indicando que para este problema ainda seria melhor utilizar somente o DE e uma busca local.
 
-Colocados estes resultados em perspectiva, é necessário levantar algumas ressalvas. A primeira delas é que este experimento foi executado em um único problema de otimização de duas dimensões. A arquitetura sequer foi testada sob uma família de problemas, o que impede a generalização deste resultado ou qualquer conclusão forte sobre ele. A segunda ressalva é que dos algoritmos presentes na arquitetura, o DE já se mostrou suficientemente bom neste problema. E, sendo possível perceber uma melhoria ao hibridizá-lo com um agente de busca local. Essa melhoria foi pequena e não foi possível observá-la nos outros algoritmos. Os resultados não passam em um teste de normalidade, fato que impede a condução de uma análise do poder do teste para este resultado em particular. As regiões se mostraram efetivas em somente um dos resultados, o que indica que há um problema em sua dinâmica, de modo que ela não contribui para o processo de escolha e otimização dos agentes. A última ressalva diz respeito à escala do experimento, que ficou limitada ao ambiente disponível na Plataforma \textit{Google Cloud}, não sendo possível executar este mesmo experimento para uma quantidade maior de agentes/regiões.
+Colocados estes resultados em perspectiva, é necessário levantar algumas ressalvas. A primeira delas é que este experimento foi executado em um único problema de otimização de duas dimensões. A arquitetura sequer foi testada sob uma família de problemas, o que impede a generalização deste resultado ou qualquer conclusão forte sobre ele. A segunda ressalva é que, dos algoritmos apresentados neste experimento, DE sozinho se destaca pelos resultados superiores aos demais algoritmos. Ainda assim, foi possível perceber uma melhoria no seu desempenho ao hibridizá-lo com um agente de busca local. Essa melhoria foi pequena e não foi possível observá-la nos outros algoritmos. Os resultados não atendem a premissa de normalidade, fato que impede a condução de uma análise do poder do teste para este resultado em particular. As regiões se mostraram efetivas em somente um dos resultados, o que indica que há um problema em sua dinâmica, de modo que ela não contribui para o processo de escolha e otimização dos agentes. A última ressalva diz respeito à escala do experimento, que ficou limitada ao ambiente disponível na Plataforma \textit{Google Cloud}, não sendo possível executar este mesmo experimento para uma quantidade maior de agentes/regiões.
 
-Dadas as condições em que este experimento foi executado e os resultados obtidos, a principal contribuição deste trabalho é prover um procedimento experimental que pode ser aplicado a outros problemas, ou à famílias de problemas. Este trabalho também revelou indícios a dificuldade e a adaptação dos agentes aos problemas de otimização são fatores que precisam ser controlados. Como por exemplo, ficou claro pelos experimentos que o algoritmo DE é bem adaptado para este tipo de problema contínuo, a de modo que convergência da arquitetura se dá de forma muito rápida, e qualquer outro agente acaba gerando ruido no resultado final. Olhando para o experimento em que há variedade de configuração de agentes, parece ser necessário existir um mecanismo de adaptação entre os agentes, de modo que os agentes que geram soluções piores, e pioram o resultado global, sofram uma pressão seletiva. Isso seria útil, pois evitaria uma calibragem inicial dos parâmetros dos agentes. 
+Dadas as condições em que este experimento foi executado e os resultados obtidos, a principal contribuição deste trabalho é prover um procedimento experimental que pode ser aplicado a outros problemas, ou à famílias de problemas. Este trabalho também revelou indícios de que a dificuldade dos problemas de otimização, bem como a adaptação dos agentes aos mesmos, são fatores que precisam ser controlados. Como por exemplo, ficou claro pelos experimentos que o algoritmo DE é bem adaptado para este tipo de problema contínuo, de modo que convergência da arquitetura se dá de forma muito rápida, e qualquer outro agente acaba gerando ruido no resultado final. Olhando para o experimento em que há variedade de configuração de agentes, parece ser necessário existir um mecanismo de adaptação entre os agentes, de modo que os agentes que geram soluções piores, e pioram o resultado global, sofram uma pressão seletiva. Isso seria útil, pois evitaria uma calibragem inicial dos parâmetros dos agentes. 
 
-Por fim, de modo geral, as regiões não demonstraram ser um fator relevante na maioria dos resultados apresentados. As regiões são o meio pelo qual que os agentes trocam informações e compreendem o espaço de busca. Esperava-se que a dinâmica do espaço de busca agrupasse as soluções semelhantes, e o agente aprende-se a explorar as regiões mais promissoras. Isso se daria por meio do mecanismo de memória utilizado, baseado no algoritmo \textit{Q-learning}. Entretanto, o número de regiões no sistema não alcança um ponto de equilíbrio (vide \autoref{app:numeroMedioRegioes}) e a única exceção a esta observação foi o experimento descrito na \autoref{sec:aumentandoAgentes}, onde aumentar o número de regiões parece fazer os agentes aprenderem a produzir soluções de melhor qualidade. 
+Por fim, de modo geral, as regiões não demonstraram ser um fator relevante na maioria dos resultados apresentados. As regiões são o meio pelo qual que os agentes trocam informações e compreendem o espaço de busca. Esperava-se que a dinâmica do espaço de busca agrupasse as soluções semelhantes, e o agente aprendesse a explorar as regiões mais promissoras. Isso se daria por meio do mecanismo de memória utilizado, baseado no algoritmo \textit{Q-learning}. Entretanto, o número de regiões no sistema não alcança um ponto de equilíbrio (vide \autoref{app:numeroMedioRegioes}) e a única exceção a esta observação foi o experimento descrito na \autoref{sec:aumentandoAgentes}, onde aumentar o número de regiões parece fazer os agentes aprenderem a produzir soluções de melhor qualidade. 
