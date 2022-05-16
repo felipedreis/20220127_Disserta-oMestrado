@@ -6,6 +6,8 @@
 \chapter{Avaliação da escalabilidade}
 \label{chap:exp_preliminares}
 
+\epigraph{Vou longe. Se o senhor já viu disso, sabe: se não sabe, como vai saber? São coisas que não cabem em fazer idéia.}{Riobaldo, em "Grande Sertão: Veredas"}
+
 Apresentadas as correções e aprimoramentos feitos na arquitetura D-Optimas, é necessário avaliar os impactos no seu funcionamento e comportamento. Neste capítulo será apresentada uma  bateria de experimentos, com o objetivo de avaliar a escalabilidade da nova implementação baseada em \textit{akka-cluster}.
 
 A \autoref{sec:desempenho} descreve o experimento para avaliar o impacto do aumento da quantidade de nós do \textit{cluster} na execução da simulação, principalmente na latência entre as mensagens trocadas e a taxa de produção de soluções dos agentes. A \autoref{sec:resultado} apresenta os resultados obtidos e a análise estatística para cada tipo de mensagem analisada. Espera-se que, mantendo o número de agentes e o limite de regiões, mas aumentando o número de nós, a carga seja melhor distribuída entre os nós, e que o tempo médio entre um envio de uma mensagem por um ator e o seu respectivo processamento em outro ator diminua. Por fim, a \autoref{sec:sintese} apresenta uma síntese dos resultados. 

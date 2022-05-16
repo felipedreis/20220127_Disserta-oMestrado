@@ -1,6 +1,6 @@
 \chapter{Avaliação do efeito da diversidade na qualidade das soluções produzidas}
 \label{chap:exp_diversidade}
-\epigraph{Rir, antes da hora, engasga}{Riobaldo, em "Grande Sertão: Veredas"}
+\epigraph{Rir, antes da hora, engasga.}{Riobaldo, em "Grande Sertão: Veredas"}
 
 Uma vez avaliada a capacidade de escalar horizontalmente, o atual capítulo descreverá os experimentos realizados para avaliar o efeito da diversidade de agentes na qualidade das soluções produzidas pela arquitetura.
 
@@ -24,33 +24,29 @@ Este problema é interessante para a arquitetura, pois possui uma grande quantid
     \fonte{O próprio autor}
 \end{figure}
 
-Dito isto, o presente capítulo se divide em cinco seções. A primeira seção trata dos experimentos de \textit{baseline}, que servirão de base de comparação para os experimentos seguintes. Esta etapa do procedimento avaliou o resultado de cada uma das meta-heurísticas presentes na arquitetura D-Optimas na presença de um agente gerador de soluções e uma única região. Esta configuração é a mais simples que pode ser executada, uma vez que o agente gerador é necessário para inicializar o agente explorador do espaço de busca. A \autoref{sec:popBuscaLocal} trata da hibridização de um algoritmo populacional e uma estratégia de busca local. Para que os dois agentes que passam a compor a simulação possam colaborar na exploração do espaço de busca, na \autoref{sec:aumentandoRegioes} é avaliado o impacto do aumento do número mínimo de regiões na qualidade das soluções finais encontradas pela arquitetura.
+Dito isto, o presente capítulo se divide em seis seções. A primeira seção trata dos experimentos preparatórios para calcular o tamanho da amostra dos experimentos seguintes. A \autoref{sec:baseline} trata dos experimentos de \textit{baseline}, que servirão de base de comparação para os experimentos seguintes. Esta etapa do procedimento avaliou o resultado de cada uma das meta-heurísticas presentes na arquitetura D-Optimas na presença de um agente gerador de soluções e uma única região. Esta configuração é a mais simples que pode ser executada, uma vez que o agente gerador é necessário para inicializar o agente explorador do espaço de busca. A \autoref{sec:popBuscaLocal} trata da hibridização de um algoritmo populacional e uma estratégia de busca local. Para que os dois agentes que passam a compor a simulação possam colaborar na exploração do espaço de busca, na \autoref{sec:aumentandoRegioes} é avaliado o impacto do aumento do número mínimo de regiões na qualidade das soluções finais encontradas pela arquitetura.
 
 Uma vez apreciado o comportamento de um agente populacional acompanhado de uma busca local, a \autoref{sec:aumentandoAgentes} avalia o efeito do aumento do número de agentes no resultado final produzido pela arquitetura D-Optimas. 
 
 Por fim, a \autoref{sec:diversidade} avalia o efeito da composição de várias heurísticas populacionais, juntamente com a busca local, comparando os resultados obtidos nesta etapa com todas as configurações anteriores. A síntese do resultado e as considerações finais deste capítulo estão dispostas na \autoref{sec:sinteseDiversidade}.
 
 \section{Experimentos preparatórios}
-Foi realizado um experimento preparatório para avaliar o efeito da mudança de parâmetros na arquitetura, bem como a duração apropriada para o experimento. Esse experimento avaliou a arquitetura com um agente do tipo ILS, um agente do tipo GA e um agente gerador de soluções. O parâmetro variado foi a taxa de mutação do agente GA, que variou entre os níveis $0.05$, $0.1$, $0.15$, $0.20$ e $0.25$. Este experimento foi repetido 14 vezes para cada um dos níveis.
+\label{sec:prep}
+Foi realizado um experimento preparatório para avaliar o efeito da mudança de parâmetros na arquitetura, bem como a duração apropriada para o experimento. Esse experimento avaliou a arquitetura com um agente do tipo ILS, um agente do tipo GA e um agente gerador de soluções. O parâmetro variado foi a taxa de mutação do agente GA, que variou entre os níveis $0.05$, $0.1$, $0.15$, $0.20$ e $0.25$. Este experimento foi repetido 14 vezes para cada um dos níveis. Os demais parâmetros das metaheurísticas foram configuradas conforme os dados apresentados na \autoref{tab:configExpBaseline}.
 
-Os resultados obtidos do experimento são exibidos na \autoref{fig:prep}
+Os resultados obtidos no experimento são exibidos na \autoref{fig:exp_prep}. Uma vez que a amostra não atende as premissas de normalidade e homocedasticidade (p-valores de $2.0 \times 10ˆ{-6}$ e $3.448 \times 10ˆ{-3}$ respectivamente), foi utilizado o teste não paramétrico de Kruskal-Wallis. O teste indica com p-valor de $0.208669$ que não é possível identificar diferença significante entre as amostras.
 
-Kruskal-Wallis p-valor 0.208669
-
-Homocedasticidade 0.003448
-
-Normalidade 0.000002
-
-Analise do poder do teste 15
-
+Deste modo, o experimento indica que para essa configuração da arquitetura, com um agente gerador de soluções, um agente de busca local e um agente de busca populacional, não faz diferença a escolha do parâmetro de mutação de um agente. 
 
 \begin{figure}
     \centering
-    \includesvg{./imagens/preparatorio1.svg}
-    \caption{Valor da função objetivo para}
-    \label{fig:my_label}
+    \caption{Boxplot de 20 valores da função objetivo, ao final da simulação, para diferentes configurações da taxa de mutação do GA}
+    \includesvg{./imagens/exp_prep_ga.svg}
+    \label{fig:exp_prep}
+    \fonte{O próprio autor}
 \end{figure}
 
+A análise do poder do teste indicou que o tamanho da amostra ideal para este experimento seria de 20 valores para atingir um poder do teste de $90\%$. Deste modo, esse foi o tamanho da amostra escolhido para os experimentos de \textit{baseline} e avaliação da diversidade.
 
 \section{Experimentos de \textit{baseline}}
 \label{sec:baseline}
